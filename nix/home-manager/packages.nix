@@ -65,7 +65,6 @@ in {
     pkgs.vlc # A multimedia player
 
     # Text editor
-    pkgs.onlyoffice-bin # An office suite
     pkgs.pdfgrep # A tool to search text in PDF files
 
     pkgs.adw-gtk3
@@ -88,8 +87,6 @@ in {
 
     # Messaging
     pkgs.signal-desktop # Signal Desktop messaging app
-    pkgs.discord # Discord messaging app
-    pkgs.slack # A messaging and collaboration platform
 
     # Note
     pkgs.obsidian # A knowledge base and note-taking app

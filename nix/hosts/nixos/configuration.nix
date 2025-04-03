@@ -91,7 +91,14 @@
   environment.systemPackages = with pkgs; [
     neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     git
+    vim
+    virtiofsd
   ];
+
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu.ovmf.enable = true;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -105,9 +112,12 @@
     withUWSM = true;
   };
   programs.uwsm.enable = true;
-  programs.steam.enable = true;
 
   # List services that you want to enable:
+  services.xserver.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.spice-vdagentd.enable = true;
+  services.qemuGuest.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh = {
@@ -192,6 +202,7 @@
     };
   };
 
+  hardware.graphics.enable32Bit = false;
   hardware.i2c.enable = true;
   programs.nix-ld.enable = true;
   # Sets up all the libraries to load
@@ -216,7 +227,6 @@
   services.upower.enable = true;
   services.ollama = {
     enable = true;
-    acceleration = "rocm";
   };
   services.geoclue2 = {
     enable = true;

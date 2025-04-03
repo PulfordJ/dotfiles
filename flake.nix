@@ -114,7 +114,7 @@
     nixosConfigurations = {
       # build with sudo nixos-rebuild switch --flake ~/dotfiles#nixos
       nixos = nixpkgs-unstable.lib.nixosSystem {
-        pkgs = mkPkgs "x86_64-linux";
+        pkgs = mkPkgs "aarch64-linux";
         specialArgs = {
           inherit inputs;
           userdata = userdata;

@@ -14,7 +14,6 @@
 in {
   imports = [
     inputs.xremap-flake.homeManagerModules.default
-    inputs.spicetify-nix.homeManagerModules.default
     "${project_root}/nix/home-manager/configs/zsh.nix"
     "${project_root}/nix/home-manager/configs/alacritty.nix"
     "${project_root}/nix/home-manager/configs/hyprland/hyprland.nix"
@@ -41,14 +40,6 @@ in {
   home.homeDirectory = "/home/${userdata.username}";
 
   home.packages = package_config.default_packages ++ package_config.linux_packages;
-
-  programs.spicetify = let
-    spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
-  in {
-    enable = true;
-    enabledExtensions = with spicePkgs.extensions; [
-    ];
-  };
 
   services.xremap = {
     withWlroots = true;
