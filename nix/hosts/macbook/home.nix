@@ -53,6 +53,7 @@ in {
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
       else config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/nvim";
+    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   # Let Home Manager install and manage itself.
@@ -65,6 +66,4 @@ in {
       core = {editor = "nvim";};
     };
   };
-
-
 }

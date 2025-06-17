@@ -108,6 +108,7 @@ in {
 
     ".config/tmuxinator".source = "${project_root}/utilities/tmuxinator";
     ".tmux.conf".source = "${project_root}/utilities/tmux/.tmux.conf";
+    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   qt = {enable = true;};
@@ -242,7 +243,6 @@ in {
       core = {editor = "nvim";};
     };
   };
-
 
   programs.bat = {
     enable = true;
