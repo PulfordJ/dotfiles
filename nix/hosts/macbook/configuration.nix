@@ -10,7 +10,7 @@ in {
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [pkgs.neovim pkgs.git];
+  environment.systemPackages = [pkgs.neovim pkgs.git pkgs.cocoapods];
 
   # Necessary for using flakes on this system.
   nix = {
@@ -31,6 +31,7 @@ in {
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
   system.stateVersion = stateVersion;
+  ids.gids.nixbld = 350;
 
   # The platform the configuration will be used on.
   nixpkgs.hostPlatform = pkgs.stdenv.hostPlatform;
@@ -187,25 +188,52 @@ in {
     brews = [
       "displayplacer"
       "libmagic"
+      "neovim"
+      "ruby"
     ];
 
     # `brew install --cask`
     casks = [
+      "flutter"
       "iterm2"
       "1password"
       "spotify"
       "alt-tab"
       "firefox"
+      "brave-browser"
       "signal"
       "messenger"
       "obsidian"
       "discord"
-      "monitorcontrol"
+      # Duy added this for his M1, I don't have a touchbar :) "monitorcontrol"
       "unnaturalscrollwheels"
       "rectangle"
       "activitywatch"
       "vlc"
+      "android-studio"
+      "android-platform-tools"
+      "caffeine"
+      "expressvpn"
+      "google-chrome"
+      "libreoffice"
+      "grandperspective"
+      "mactex"
+      "pycharm-ce"
+      "private-internet-access"
+      "qbittorrent"
+      "r"
+      "rstudio"
+      "steam"
+      "telegram"
+      "utm"
+      "visual-studio-code"
+      "vlc"
+      "whisky"
     ];
+    // mas install https://www.moncefbelyamani.com/how-to-install-xcode-with-homebrew/
+    masApps = {
+        XCode = 497799835;
+    };
     global.autoUpdate = true;
   };
   system.defaults.dock = {
