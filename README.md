@@ -11,7 +11,7 @@
 #### Bootstrap
 
 To bootstrap NixOS with my dotfiles, follow these steps:
-1. Clone the repository to ~/dotfiles
+1. Clone the repository to ~/dotfiles under a username matching the username HOME directory defined in configuration.nix
 2. Change the username defined configuration.nix
 
 #### To update the system
