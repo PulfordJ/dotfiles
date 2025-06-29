@@ -56,7 +56,7 @@
   networking.networkmanager.enable = true;
 
   # Set your time zone.
-  time.timeZone = "America/New_York";
+  time.timeZone = "Europe/London";
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -75,7 +75,7 @@
 
   # Configure keymap in X11
   services.xserver.xkb = {
-    layout = "us";
+    layout = "gb";
     variant = "";
   };
 
@@ -206,6 +206,7 @@
     packages = with pkgs; [terminus_font];
     font = "${pkgs.terminus_font}/share/consolefonts/ter-u28n.psf.gz";
   };
+  console.keyMap = "uk";
 
   # TODO: Remove this once nixpkgs fixes the issue with podman OCI permissions
   # https://discourse.nixos.org/t/distrobox-podman-oci-permission-error/64943/10
