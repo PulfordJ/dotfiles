@@ -227,12 +227,17 @@ in {
   };
   systemd.user.services.fcitx5-daemon = lib.mkForce {};
 
+  # systemd.user.sessionVariables = config.home.sessionVariables;
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.git = {
     enable = true;
     userName = userdata.name;
     userEmail = userdata.email;
+    extraConfig = {
+      core = { editor = "nvim"; };
+    };
   };
   programs.bat = {
     enable = true;

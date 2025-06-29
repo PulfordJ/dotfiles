@@ -23,7 +23,7 @@
     '';
     optimise.automatic = true;
     gc = {
-      automatic = true;
+      automatic = false;
       options = "--delete-older-than 7d";
     };
     settings.trusted-users = ["root" "@wheel"];
@@ -90,6 +90,7 @@
       xdg-utils
       desktop-file-utils
       distrobox
+      caffeine-ng
 
       # Container
       podman-tui
@@ -102,7 +103,15 @@
   # To search for packages run 'nix search'. For example, 'nix search nixpkgs bazel'
   environment.systemPackages = with pkgs; [
     neovim
+    eza
+    xclip
+    wl-clipboard
     git
+    brave
+    nix-index
+    pciutils
+    gparted
+    xorg.xmodmap
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -154,7 +163,7 @@
   };
   services.usbmuxd.enable = true;
 
-  programs._1password.enable = true;
+  programs._1password.enable = false;
   programs._1password-gui = {
     enable = true;
     # Certain features, including CLI integration and system authentication support,

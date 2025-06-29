@@ -90,6 +90,7 @@
       export PATH=$PATH:$HOME/.cargo/bin
 
       eval "$(starship init zsh)"
+      alias vim=nvim
     '';
   };
 
