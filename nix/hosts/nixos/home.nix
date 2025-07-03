@@ -16,6 +16,7 @@ in {
   imports = [
     inputs.xremap-flake.homeManagerModules.default
     inputs.spicetify-nix.homeManagerModules.default
+    inputs.agenix.homeManagerModules.default
     "${project_root}/nix/home-manager/configs/zsh.nix"
     "${project_root}/nix/home-manager/configs/kitty.nix"
     "${project_root}/nix/home-manager/configs/hyprland/hyprland.nix"
@@ -105,6 +106,7 @@ in {
 
     ".config/tmuxinator".source = "${project_root}/utilities/tmuxinator";
     ".tmux.conf".source = "${project_root}/utilities/tmux/.tmux.conf";
+    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   qt = {enable = true;};
@@ -239,6 +241,21 @@ in {
       core = { editor = "nvim"; };
     };
   };
+
+  # This is the nixy way to use secrets, configure them via programs
+  # symlinks cannot be created to runtime linked directories 
+  # you could hard code it with home activation but very unnixy so best avoided
+  # if possible.
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      Host *
+        IdentityFile /run/agenix/secret1
+        IdentitiesOnly yes
+    '';
+  };
+
+
   programs.bat = {
     enable = true;
   };

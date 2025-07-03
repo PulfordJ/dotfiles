@@ -58,11 +58,22 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.agenix.url = "github:ryantm/agenix";
+  inputs.agenix-rekey.url = "github:oddlama/agenix-rekey";
+  # Make sure to override the nixpkgs version to follow your flake,
+  # otherwise derivation paths can mismatch (when using storageMode = "derivation"),
+  # resulting in the rekeyed secrets not being found!
+  inputs.agenix-rekey.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
   outputs = inputs @ {
+    self,
     nixpkgs-unstable,
     nix-darwin,
     home-manager,
+    agenix,
+    agenix-rekey,
+    flake-utils,
     ...
   }: let
     project_root = ./.;
@@ -74,6 +85,7 @@
           inputs.nur.overlays.default
           (import "${project_root}/nix/overlays/firefox-addons.nix")
           (import "${project_root}/nix/overlays/vim-plugins.nix" inputs)
+	  agenix-rekey.overlays.default
         ];
         config.allowUnfree = true;
       };
@@ -122,6 +134,9 @@
           hostPath
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule homePath)
+	  agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
         ];
       };
   in {
@@ -149,5 +164,30 @@
         homePath = "${project_root}/nix/hosts/nixos/home.nix";
       };
     };
+    
+    # ------------------------#
+    #   devShell for nixos    #
+    # ------------------------#
+    devShells = {
+      x86_64-linux = let
+        pkgs = mkPkgs "x86_64-linux";
+      in {
+        default = pkgs.mkShell {
+          packages = [ pkgs.agenix-rekey ];
+        };
+      };
+    };
+    # Expose the necessary information in your flake so agenix-rekey
+    # knows where it has to look for secrets and paths.
+    #
+    # Make sure that the pkgs passed here comes from the same nixpkgs version as
+    # the pkgs used on your hosts in `nixosConfigurations`, otherwise the rekeyed
+    # derivations will not be found!
+    agenix-rekey = agenix-rekey.configure {
+      userFlake = self;
+      nixosConfigurations = self.nixosConfigurations;
+      # Example for colmena:
+      # nixosConfigurations = ((colmena.lib.makeHive self.colmena).introspect (x: x)).nodes;
+    };
   };
-}
+} 

@@ -179,8 +179,8 @@
       "geolocation".text = ''
         # Statue of Liberty
         40.6893129   # latitude
-        -74.0445531  # longitude
-        96           # altitude
+        0.1313  # longitude
+        79           # altitude
         1.83         # accuracy radius
       '';
       "geoclue/conf.d/00-config.conf".text = ''
