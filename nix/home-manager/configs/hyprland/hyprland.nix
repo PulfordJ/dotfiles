@@ -311,6 +311,8 @@ in {
       bind=,r,exec,hyprctl reload && notify-send -t 1000 'Hyprland reloaded'
       bind=,l,exec,loginctl lock-session
       bind=SHIFT,L,exec,${lib.getExe scripts.prompt} 'Do you want to suspend?' 'sleep 0.6 && loginctl lock-session && sleep 1 && systemctl suspend -i'
+      bind=SHIFT,S,exec,${lib.getExe scripts.prompt} 'Do you want to hybrid-sleep?' 'sleep 0.6 && loginctl lock-session && sleep 1 && systemctl hybrid-sleep -i'
+      bind=SHIFT,H,exec,${lib.getExe scripts.prompt} 'Do you want to hibernate?' 'sleep 0.6 && loginctl lock-session && sleep 1 && systemctl hibernate -i'
       bind=$mainMod SHIFT, Q, exec, ${lib.getExe scripts.prompt} 'Do you want to exit?' 'uwsm stop'
 
       # use reset to go back to the global submap

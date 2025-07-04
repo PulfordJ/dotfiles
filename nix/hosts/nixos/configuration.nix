@@ -50,6 +50,10 @@
   boot.kernelModules = ["uinput" "i2c-dev"];
   boot.blacklistedKernelModules = ["wacom"];
 
+  boot.kernelParams = [ "resume=LABEL=swap" ];
+  boot.resumeDevice = "/dev/disk/by-label/swap";
+
+
   networking.hostName = "nixos"; # Define your hostname.
 
   # Enable networking
