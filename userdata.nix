@@ -11,6 +11,6 @@
   hermeticNvimConfig = false;
 
   authorizedKeys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBYi6b9Qaa6hF5PXkaTinS131ESVKDkQTOWCcvD8JmZ3"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKREhtXi5NvZpmJFpA1RrytcxE3zih1oOU3CXUU4hArU your_email@example.com"
   ];
 }

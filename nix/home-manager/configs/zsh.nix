@@ -91,6 +91,14 @@
 
       eval "$(starship init zsh)"
       alias vim=nvim
+      # agent already started and running on /run/user/1000/ssh-agent with variables populated, we just may need to add the key
+      KEY="/run/agenix/secret1"
+      
+      # Check if the ssh-agent has the key already
+      if ssh-add -l | grep -q "$(ssh-keygen -lf "$KEY" | awk '{print $2}')"; then
+      else
+        ssh-add -q "$KEY"
+      fi
     '';
   };
 

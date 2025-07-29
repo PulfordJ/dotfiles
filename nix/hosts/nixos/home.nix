@@ -83,6 +83,7 @@ in {
       day = 6000;
     };
   };
+  services.ssh-agent.enable = true;
 
   # +--------------------+
   # |    Linux Config    |
@@ -248,6 +249,7 @@ in {
   # if possible.
   programs.ssh = {
     enable = true;
+    forwardAgent = true;
     extraConfig = ''
       Host *
         IdentityFile /run/agenix/secret1
