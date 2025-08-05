@@ -67,18 +67,5 @@ in {
     };
   };
 
-  # This is the nixy way to use secrets, configure them via programs
-  # symlinks cannot be created to runtime linked directories
-  # you could hard code it with home activation but very unnixy so best avoided
-  # if possible.
-  #programs.ssh = {
-  #  enable = true;
-  #  matchBlocks = {
-  #    "*" = {
-  #      identitiesOnly = true;
-  #      identityFile = "/run/agenix/secret1";
-  #    };
-  #  };
-  #};
 
 }
