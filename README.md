@@ -1,4 +1,4 @@
-# Duy Pham's dotfiles repo
+# John Pulford's dotfiles repo
 
 ## Screenshot
 
