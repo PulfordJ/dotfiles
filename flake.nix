@@ -119,7 +119,7 @@
           (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
           agenix.darwinModules.default
           #agenix-rekey.nixosModules.default
-          ./secrets/secrets.nix
+          ./secrets/macsecrets.nix
         ];
       };
 
