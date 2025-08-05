@@ -97,7 +97,7 @@ in {
       };
 
       sansSerif = {
-        package = inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd;
+        package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
         name = "SFProDisplay Nerd Font";
       };
 
