@@ -255,8 +255,6 @@ in {
         IdentityFile /run/agenix/secret1
         IdentitiesOnly yes
     '';
-    identityFile = /run/agenix/secret1;
-    identitiesOnly = true;
   };
 
   programs.bat = {
