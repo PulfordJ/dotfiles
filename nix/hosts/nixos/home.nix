@@ -31,7 +31,6 @@ in {
     "${project_root}/nix/home-manager/configs/tofi.nix"
     "${project_root}/nix/home-manager/configs/yazi.nix"
     "${project_root}/nix/home-manager/configs/swaylock.nix"
-    "${project_root}/nix/home-manager/configs/ssh.nix"
     "${project_root}/nix/home-manager/systemd.nix"
     "${project_root}/nix/home-manager/configs/stylix.nix"
     "${project_root}/nix/home-manager/configs/activitywatch.nix"
@@ -248,6 +247,15 @@ in {
   # symlinks cannot be created to runtime linked directories
   # you could hard code it with home activation but very unnixy so best avoided
   # if possible.
+  programs.ssh = {
+    enable = true;
+    forwardAgent = true;
+    extraConfig = ''
+      Host *
+        IdentityFile /run/agenix/secret1
+        IdentitiesOnly yes
+    '';
+  };
 
   programs.bat = {
     enable = true;
