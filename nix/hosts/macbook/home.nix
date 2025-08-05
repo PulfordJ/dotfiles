@@ -19,6 +19,7 @@ in {
     "${project_root}/nix/home-manager/configs/nvim.nix"
     "${project_root}/nix/home-manager/configs/tmux.nix"
     "${project_root}/nix/home-manager/configs/stylix.nix"
+    "${project_root}/nix/home-manager/configs/ssh.nix"
     inputs.stylix.homeModules.stylix
     inputs.mac-app-util.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
@@ -52,7 +53,6 @@ in {
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
       else config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/nvim";
-    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   # Let Home Manager install and manage itself.
@@ -67,14 +67,4 @@ in {
   };
 
 
-  programs.ssh = {
-    enable = true;
-    forwardAgent = true;
-    extraConfig = ''
-      Host *
-        IdentityFile /run/agenix/secret1
-        IdentitiesOnly yes
-    '';
-    identityFile = /run/agenix/secret1;
-  };
 }
