@@ -2,6 +2,7 @@
   pkgs,
   stateVersion,
   userdata,
+  agenix,
   inputs,
   ...
 }: let
@@ -10,7 +11,9 @@ in {
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [pkgs.neovim pkgs.git pkgs.cocoapods];
+  environment.systemPackages = [pkgs.mariadb pkgs.neovim pkgs.git pkgs.cocoapods pkgs.wireguard-tools pkgs.qrencode];
+
+  # ...
 
   # Necessary for using flakes on this system.
   nix = {
@@ -190,10 +193,12 @@ in {
       "libmagic"
       "neovim"
       "ruby"
+      "openvpn"
     ];
 
     # `brew install --cask`
     casks = [
+      "disk-inventory-x"
       "flutter"
       "iterm2"
       "1password"
@@ -205,6 +210,7 @@ in {
       "messenger"
       "obsidian"
       "discord"
+      "kodi"
       # Duy added this for his M1, I don't have a touchbar :) "monitorcontrol"
       "unnaturalscrollwheels"
       "rectangle"
@@ -232,7 +238,9 @@ in {
     ];
     # mas install https://www.moncefbelyamani.com/how-to-install-xcode-with-homebrew/
     masApps = {
-        XCode = 497799835;
+      #XCode = 497799835;
+      #"Apple Developer" = 640199958;
+      #"Testflight" = 899247664;
     };
     global.autoUpdate = true;
   };

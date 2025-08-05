@@ -50,9 +50,8 @@
   boot.kernelModules = ["uinput" "i2c-dev"];
   boot.blacklistedKernelModules = ["wacom"];
 
-  boot.kernelParams = [ "resume=LABEL=swap" ];
+  boot.kernelParams = ["resume=LABEL=swap"];
   boot.resumeDevice = "/dev/disk/by-label/swap";
-
 
   networking.hostName = "nixos"; # Define your hostname.
 
@@ -106,6 +105,7 @@
 
   # To search for packages run 'nix search'. For example, 'nix search nixpkgs bazel'
   environment.systemPackages = with pkgs; [
+    arp-scan
     neovim
     eza
     xclip

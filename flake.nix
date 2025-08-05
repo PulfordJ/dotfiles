@@ -85,7 +85,7 @@
           inputs.nur.overlays.default
           (import "${project_root}/nix/overlays/firefox-addons.nix")
           (import "${project_root}/nix/overlays/vim-plugins.nix" inputs)
-	  agenix-rekey.overlays.default
+          agenix-rekey.overlays.default
         ];
         config.allowUnfree = true;
       };
@@ -117,6 +117,9 @@
           ./nix/hosts/macbook/configuration.nix
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
+          agenix.darwinModules.default
+          #agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
         ];
       };
 
@@ -134,7 +137,7 @@
           hostPath
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule homePath)
-	  agenix.nixosModules.default
+          agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
         ];
@@ -164,7 +167,7 @@
         homePath = "${project_root}/nix/hosts/nixos/home.nix";
       };
     };
-    
+
     # ------------------------#
     #   devShell for nixos    #
     # ------------------------#
@@ -173,7 +176,7 @@
         pkgs = mkPkgs "x86_64-linux";
       in {
         default = pkgs.mkShell {
-          packages = [ pkgs.agenix-rekey ];
+          packages = [pkgs.agenix-rekey];
         };
       };
     };
@@ -190,4 +193,4 @@
       # nixosConfigurations = ((colmena.lib.makeHive self.colmena).introspect (x: x)).nodes;
     };
   };
-} 
+}

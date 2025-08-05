@@ -21,6 +21,7 @@ in {
     "${project_root}/nix/home-manager/configs/stylix.nix"
     inputs.stylix.homeModules.stylix
     inputs.mac-app-util.homeManagerModules.default
+    inputs.agenix.homeManagerModules.default
   ];
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
@@ -51,6 +52,7 @@ in {
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
       else config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/nvim";
+    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   # Let Home Manager install and manage itself.
@@ -59,5 +61,31 @@ in {
     enable = true;
     userName = userdata.name;
     userEmail = userdata.email;
+    extraConfig = {
+      core = {editor = "nvim";};
+    };
+  };
+
+  # This is the nixy way to use secrets, configure them via programs
+  # symlinks cannot be created to runtime linked directories
+  # you could hard code it with home activation but very unnixy so best avoided
+  # if possible.
+  #programs.ssh = {
+  #  enable = true;
+  #  matchBlocks = {
+  #    "*" = {
+  #      identitiesOnly = true;
+  #      identityFile = "/run/agenix/secret1";
+  #    };
+  #  };
+  #};
+
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      Host *
+        IdentityFile /run/agenix/secret1
+        IdentitiesOnly yes
+    '';
   };
 }

@@ -239,12 +239,12 @@ in {
     userName = userdata.name;
     userEmail = userdata.email;
     extraConfig = {
-      core = { editor = "nvim"; };
+      core = {editor = "nvim";};
     };
   };
 
   # This is the nixy way to use secrets, configure them via programs
-  # symlinks cannot be created to runtime linked directories 
+  # symlinks cannot be created to runtime linked directories
   # you could hard code it with home activation but very unnixy so best avoided
   # if possible.
   programs.ssh = {
@@ -255,8 +255,9 @@ in {
         IdentityFile /run/agenix/secret1
         IdentitiesOnly yes
     '';
+    identityFile = /run/agenix/secret1;
+    identitiesOnly = true;
   };
-
 
   programs.bat = {
     enable = true;
