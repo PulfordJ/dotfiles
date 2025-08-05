@@ -198,6 +198,7 @@ in {
 
     # `brew install --cask`
     casks = [
+      "claude-code"
       "disk-inventory-x"
       "flutter"
       "iterm2"
