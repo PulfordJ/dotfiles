@@ -333,8 +333,8 @@
         lon=$(echo "$gps_coords" | awk '{print $2}')
       fi
       
-      # Use Nominatim reverse geocoding API (OpenStreetMap)
-      reverse_geo=$(curl -s "https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&addressdetails=1&zoom=18")
+      # Use Nominatim reverse geocoding API (OpenStreetMap) with English language preference
+      reverse_geo=$(curl -s "https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&addressdetails=1&zoom=18&accept-language=en")
       
       if [ -n "$reverse_geo" ]; then
         # Extract address components
@@ -350,7 +350,7 @@
         
         # Build formatted address
         if [ -n "$display_name" ]; then
-          echo "**Full Address:** $display_name"
+          echo "**Estimated Address (GPS-based):** $display_name"
           
           # Show individual components if available
           [ -n "$house_number" ] && [ -n "$road" ] && echo "**Street:** $house_number $road"
