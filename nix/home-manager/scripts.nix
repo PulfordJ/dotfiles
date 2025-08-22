@@ -291,10 +291,24 @@
     echo "## Speed Test - $(date)"
     echo
     
-    # Get location info using curl to ipinfo.io
-    location_info=$(curl -s "https://ipinfo.io" | grep -E '"city"|"region"|"country"' | cut -d'"' -f4 | paste -sd ',' -)
-    if [ -n "$location_info" ]; then
-      echo "**Location:** $location_info"
+    # Get detailed location info using curl to ipinfo.io
+    location_data=$(curl -s "https://ipinfo.io")
+    if [ -n "$location_data" ]; then
+      ip=$(echo "$location_data" | grep '"ip"' | cut -d'"' -f4)
+      city=$(echo "$location_data" | grep '"city"' | cut -d'"' -f4)
+      region=$(echo "$location_data" | grep '"region"' | cut -d'"' -f4)
+      country=$(echo "$location_data" | grep '"country"' | cut -d'"' -f4)
+      postal=$(echo "$location_data" | grep '"postal"' | cut -d'"' -f4)
+      org=$(echo "$location_data" | grep '"org"' | cut -d'"' -f4)
+      timezone=$(echo "$location_data" | grep '"timezone"' | cut -d'"' -f4)
+      loc=$(echo "$location_data" | grep '"loc"' | cut -d'"' -f4)
+      
+      echo "**IP Address:** $ip"
+      echo "**Location:** $city, $region, $country"
+      [ -n "$postal" ] && echo "**Postal Code:** $postal"
+      [ -n "$org" ] && echo "**ISP/Provider:** $org"
+      [ -n "$timezone" ] && echo "**Timezone:** $timezone"
+      [ -n "$loc" ] && echo "**GPS Coordinates:** [$loc](https://maps.google.com/maps?q=$loc)"
     else
       echo "**Location:** Unable to determine"
     fi
