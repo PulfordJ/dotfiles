@@ -170,6 +170,5 @@ in {
   ];
 
   mac_packages = [
-    pkgs.speedtest-cli # Command-line interface for testing internet bandwidth
   ];
 }

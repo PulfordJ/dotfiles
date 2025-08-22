@@ -39,7 +39,7 @@ in {
       ls = "exa -la";
       cat = "bat";
       tree = "tree -a";
-      speedtest = "${lib.getExe scripts.speedtest}";
+      speedtest = "speedtesthelper";
     };
 
     sessionVariables = {

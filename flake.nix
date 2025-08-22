@@ -115,6 +115,7 @@
         modules = [
           inputs.mac-app-util.darwinModules.default
           ./nix/hosts/macbook/configuration.nix
+          ./modules/speedtest.nix
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
           agenix.darwinModules.default
