@@ -286,4 +286,21 @@
     darkman toggle
     rm "$LOCK_FILE"
   '';
+
+  speedtest = pkgs.writeShellScriptBin "speedtest" ''
+    echo "## Speed Test - $(date)"
+    echo
+    
+    # Get location info using curl to ipinfo.io
+    location_info=$(curl -s "https://ipinfo.io" | grep -E '"city"|"region"|"country"' | cut -d'"' -f4 | paste -sd ',' -)
+    if [ -n "$location_info" ]; then
+      echo "**Location:** $location_info"
+    else
+      echo "**Location:** Unable to determine"
+    fi
+    echo
+    
+    echo "**Network Speed:**"
+    speedtest-cli --simple | sed 's/^/- /'
+  '';
 }

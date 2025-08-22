@@ -1,8 +1,11 @@
 {
   pkgs,
   lib,
+  project_root,
   ...
-}: {
+}: let
+  scripts = import "${project_root}/nix/home-manager/scripts.nix" {pkgs = pkgs;};
+in {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -36,6 +39,7 @@
       ls = "exa -la";
       cat = "bat";
       tree = "tree -a";
+      speedtest = "${lib.getExe scripts.speedtest}";
     };
 
     sessionVariables = {
