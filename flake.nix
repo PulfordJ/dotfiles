@@ -6,6 +6,7 @@
     nix-darwin = {url = "github:LnL7/nix-darwin";};
     home-manager = {url = "github:nix-community/home-manager";};
     apple-fonts = {url = "github:Lyndeno/apple-fonts.nix";};
+    nix-speedtest-module = {url = "github:PulfordJ/nix-speedtest-module";};
 
     # +----------+
     # | Hyprland |
@@ -110,12 +111,13 @@
         pkgs = mkPkgs system;
         specialArgs = {
           inherit inputs userdata;
+          inherit (inputs) nix-speedtest-module;
           stateVersion = stateVersionNum;
         };
         modules = [
           inputs.mac-app-util.darwinModules.default
           ./nix/hosts/macbook/configuration.nix
-          ./modules/speedtest.nix
+          inputs.nix-speedtest-module.darwinModules.default
           home-manager.darwinModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
           agenix.darwinModules.default
