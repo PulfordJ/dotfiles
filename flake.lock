@@ -1349,11 +1349,11 @@
         "nixpkgs": "nixpkgs_10"
       },
       "locked": {
-        "lastModified": 1755888923,
-        "narHash": "sha256-Bu3bZ2Cvu0bofAdTv8Cyfwb7wA40mw+3hXOZ5kb9H5Q=",
+        "lastModified": 1756227057,
+        "narHash": "sha256-V+uaBXz7kyllmQr51psAtOXKzGnkzNfPouSRk3Ktmj0=",
         "owner": "PulfordJ",
         "repo": "nix-speedtest-module",
-        "rev": "768fe57fba856366bb05649eecfc7bcf2da98845",
+        "rev": "28bc0ebffc78ba9c451ac1107f63ba5f9fd6b37e",
         "type": "github"
       },
       "original": {
@@ -1411,11 +1411,11 @@
     },
     "nixpkgs_10": {
       "locked": {
-        "lastModified": 1755615617,
-        "narHash": "sha256-HMwfAJBdrr8wXAkbGhtcby1zGFvs+StOp19xNsbqdOg=",
+        "lastModified": 1756125398,
+        "narHash": "sha256-XexyKZpf46cMiO5Vbj+dWSAXOnr285GHsMch8FBoHbc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+        "rev": "3b9f00d7a7bf68acd4c4abb9d43695afb04e03a5",
         "type": "github"
       },
       "original": {
