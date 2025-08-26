@@ -79,6 +79,9 @@ in {
     pkgs.nix-output-monitor
     pkgs.neovim
     pkgs.vscode
+    
+    # Rust development tools
+    pkgs.rustup # Rust toolchain installer and version manager (includes rustc, cargo, rustfmt, clippy, rust-analyzer)
   ];
 
   linux_packages = [
