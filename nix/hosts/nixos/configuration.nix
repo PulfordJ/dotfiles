@@ -116,6 +116,7 @@
     pciutils
     gparted
     xorg.xmodmap
+    nixos-anywhere
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
