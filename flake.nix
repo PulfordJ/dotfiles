@@ -176,6 +176,7 @@
         };
         modules = [
           ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/nixos/hardware-configuration.nix
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
           agenix.nixosModules.default
@@ -190,7 +191,8 @@
         };
         modules = [
           ./nix/hosts/nixos/configuration.nix
-          ./nix/hosts/nixos/disko.nix
+          ./nix/hosts/kawaiinixos/hardware-configuration.nix
+          ./nix/hosts/kawaiinixos/disko.nix
           disko.nixosModules.disko
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")

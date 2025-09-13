@@ -10,8 +10,6 @@
   ...
 }: {
   imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
     ./uxplay.nix
   ];
 
@@ -116,6 +114,7 @@
     pciutils
     gparted
     xorg.xmodmap
+    claude-code
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
