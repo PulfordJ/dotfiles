@@ -7,6 +7,7 @@
     home-manager = {url = "github:nix-community/home-manager";};
     apple-fonts = {url = "github:Lyndeno/apple-fonts.nix";};
     nix-speedtest-module = {url = "github:PulfordJ/nix-speedtest-module";};
+    claude-code.url = "github:sadjow/claude-code-nix";
 
     # +----------+
     # | Hyprland |
@@ -62,6 +63,7 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.agenix.url = "github:ryantm/agenix";
   inputs.agenix-rekey.url = "github:oddlama/agenix-rekey";
+  inputs.disko.url = "github:nix-community/disko";
   # Make sure to override the nixpkgs version to follow your flake,
   # otherwise derivation paths can mismatch (when using storageMode = "derivation"),
   # resulting in the rekeyed secrets not being found!
@@ -75,6 +77,8 @@
     agenix,
     agenix-rekey,
     flake-utils,
+    claude-code,
+    disko,
     ...
   }: let
     project_root = ./.;
@@ -87,6 +91,7 @@
           (import "${project_root}/nix/overlays/firefox-addons.nix")
           (import "${project_root}/nix/overlays/vim-plugins.nix" inputs)
           agenix-rekey.overlays.default
+          claude-code.overlays.default
         ];
         config.allowUnfree = true;
       };
@@ -164,10 +169,35 @@
     #  nixos configurations  #
     # -----------------------#
     nixosConfigurations = {
-      nixos = mkNixosHost {
-        system = "x86_64-linux";
-        hostPath = ./nix/hosts/nixos/configuration.nix;
-        homePath = "${project_root}/nix/hosts/nixos/home.nix";
+      nixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs userdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
+      };
+      kawaiinixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs userdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/nixos/disko.nix
+          disko.nixosModules.disko
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
       };
     };
 
