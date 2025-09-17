@@ -83,6 +83,7 @@
   }: let
     project_root = ./.;
     userdata = import ./userdata.nix;
+    kawaiiuserdata = import ./kawaiiuserdata.nix;
     mkPkgs = system:
       import nixpkgs-unstable {
         inherit system;
@@ -187,7 +188,7 @@
       kawaiinixos = nixpkgs-unstable.lib.nixosSystem {
         pkgs = mkPkgs "x86_64-linux";
         specialArgs = {
-          inherit inputs userdata;
+          inherit inputs kawaiiuserdata;
         };
         modules = [
           ./nix/hosts/nixos/configuration.nix
