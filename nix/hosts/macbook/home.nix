@@ -18,8 +18,10 @@ in {
     "${project_root}/nix/home-manager/configs/firefox.nix"
     "${project_root}/nix/home-manager/configs/nvim.nix"
     "${project_root}/nix/home-manager/configs/tmux.nix"
+    "${project_root}/nix/home-manager/configs/vscode.nix"
     "${project_root}/nix/home-manager/configs/stylix.nix"
     "${project_root}/nix/home-manager/configs/ssh.nix"
+    inputs.self.homeManagerModules.theme-manager
     inputs.stylix.homeModules.stylix
     inputs.mac-app-util.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
@@ -40,15 +42,6 @@ in {
   home.file = {
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/iterm".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/iterm";
-    ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/tmux/.tmux.conf";
-
-    # ------- #
-    # vscode  #
-    # ------- #
-    ".local/bin/vscode_extension.py".source = "${project_root}/scripts/vscode_extension.py";
-    "Library/Application Support/Code/User/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/settings.json";
-    "Library/Application Support/Code/User/keybindings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/keybindings.json";
-
     ".config/nvim".source =
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"

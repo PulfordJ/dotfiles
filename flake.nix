@@ -2,18 +2,22 @@
   description = "cunbidun's dotfiles";
 
   inputs = {
+    master.url = "github:nixos/nixpkgs?ref=master";
     nixpkgs-unstable = {url = "github:nixos/nixpkgs/nixos-unstable";};
+    nixpkgs-stable = {url = "github:nixos/nixpkgs/nixos-25.05";};
+
     nix-darwin = {url = "github:LnL7/nix-darwin";};
     home-manager = {url = "github:nix-community/home-manager";};
     apple-fonts = {url = "github:Lyndeno/apple-fonts.nix";};
     nix-speedtest-module = {url = "github:PulfordJ/nix-speedtest-module";};
     claude-code.url = "github:sadjow/claude-code-nix";
 
+    disko.url = "github:nix-community/disko";
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
     # +----------+
     # | Hyprland |
     # +----------+
     hyprland = {url = "github:hyprwm/Hyprland/?submodules=1";};
-    hypridle = {url = "github:hyprwm/hypridle";};
     pyprland = {url = "github:hyprland-community/pyprland";};
     hyprland-contrib = {url = "github:hyprwm/contrib";};
     hyprcursor-phinger = {url = "github:jappie3/hyprcursor-phinger";};
@@ -22,7 +26,7 @@
       inputs.hyprland.follows = "hyprland";
     };
     hyprfocus = {
-      url = "github:cunbidun/hyprfocus";
+      url = "github:daxisunder/hyprfocus";
       inputs.hyprland.follows = "hyprland";
     };
     Hyprspace = {
@@ -35,10 +39,16 @@
     # +--------+
     yazi = {url = "github:sxyazi/yazi/v25.4.8";};
     stylix = {url = "github:nix-community/stylix";};
-    spicetify-nix = {url = "github:Gerg-L/spicetify-nix";};
-
-    mac-app-util.url = "github:hraban/mac-app-util";
+    vicinae = {
+      url = "https://github.com/vicinaehq/vicinae/releases/download/v0.2.1/vicinae-linux-x86_64-v0.2.1.tar.gz";
+      flake = false;
+    };
     nur.url = "github:nix-community/nur";
+
+    nix-monitored = {
+      url = "github:ners/nix-monitored";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     # +----------------+
     # | Neovim plugins |
@@ -55,15 +65,13 @@
       url = "github:fang2hou/blink-copilot";
       flake = false;
     };
-    nix-monitored = {
-      url = "github:ners/nix-monitored";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+
+    # +-- MacOS specific --+
+    mac-app-util.url = "github:hraban/mac-app-util";
   };
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.agenix.url = "github:ryantm/agenix";
   inputs.agenix-rekey.url = "github:oddlama/agenix-rekey";
-  inputs.disko.url = "github:nix-community/disko";
   # Make sure to override the nixpkgs version to follow your flake,
   # otherwise derivation paths can mismatch (when using storageMode = "derivation"),
   # resulting in the rekeyed secrets not being found!
@@ -87,13 +95,7 @@
     mkPkgs = system:
       import nixpkgs-unstable {
         inherit system;
-        overlays = [
-          inputs.nur.overlays.default
-          (import "${project_root}/nix/overlays/firefox-addons.nix")
-          (import "${project_root}/nix/overlays/vim-plugins.nix" inputs)
-          agenix-rekey.overlays.default
-          claude-code.overlays.default
-        ];
+        overlays = import "${project_root}/nix/overlays" inputs;
         config.allowUnfree = true;
       };
 
@@ -136,6 +138,7 @@
       system,
       hostPath,
       homePath,
+      diskoPath,
     }:
       nixpkgs-unstable.lib.nixosSystem {
         pkgs = mkPkgs system;
@@ -143,6 +146,8 @@
           inherit inputs userdata;
         };
         modules = [
+          inputs.disko.nixosModules.disko
+          diskoPath
           hostPath
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule homePath)
@@ -152,6 +157,14 @@
         ];
       };
   in {
+    # for running commands like `nix eval .#inputs.hyprland.packages.x86_64-linux.hyprland`
+    inputs = inputs;
+
+    # Home Manager modules
+    homeManagerModules = {
+      theme-manager = import "${project_root}/nix/theme-manager/hm-module.nix";
+    };
+
     # -----------------------#
     # macbook configurations #
     # -----------------------#
@@ -159,10 +172,6 @@
       "macbook-m1" = mkDarwinSystem {
         system = "aarch64-darwin";
         stateVersionNum = 4;
-      };
-      "macbook-intel" = mkDarwinSystem {
-        system = "x86_64-darwin";
-        stateVersionNum = 5;
       };
     };
 
@@ -183,6 +192,29 @@
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
+        ];
+      };
+      # Raspberry Pi 5 system (accessible as .#rpi5)
+      rpi5 = inputs.nixos-raspberrypi.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          nixos-raspberrypi = inputs.nixos-raspberrypi;
+          userdata = userdata;
+        };
+        trustCaches = true;
+        modules = [
+          ({modulesPath, ...}: {
+            imports = with inputs.nixos-raspberrypi.nixosModules; [
+              raspberry-pi-5.base
+            ];
+            disabledModules = [
+              # disable the sd-image module that nixos-images uses
+              (modulesPath + "/installer/sd-card/sd-image-aarch64-installer.nix")
+            ];
+          })
+          inputs.disko.nixosModules.disko
+          ./nix/hosts/rpi/disko.nix
+          ./nix/hosts/rpi/configuration.nix
         ];
       };
       kawaiinixos = nixpkgs-unstable.lib.nixosSystem {

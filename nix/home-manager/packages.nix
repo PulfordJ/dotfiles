@@ -4,11 +4,6 @@
   inputs,
   ...
 }: let
-  theme-switch = pkgs.writeShellApplication {
-    name = "theme-switch";
-    text = builtins.readFile "${project_root}/scripts/theme-switch.sh";
-    runtimeInputs = [pkgs.gawk pkgs.gnugrep pkgs.systemdMinimal];
-  };
   yazi-wrapper = pkgs.writeShellApplication {
     name = "yazi-wrapper";
     text = ''
@@ -79,23 +74,35 @@ in {
     pkgs.nix-output-monitor
     pkgs.neovim
     pkgs.vscode
-    
+
     # Rust development tools
     pkgs.rustup # Rust toolchain installer and version manager (includes rustc, cargo, rustfmt, clippy, rust-analyzer)
+    pkgs.stylua
+    pkgs.clang-tools
+    pkgs.shfmt
+    pkgs.black
+    pkgs.alejandra
   ];
 
-  linux_packages = [
+  linux_packages = let
+    theme-switch = pkgs.writeShellApplication {
+      name = "theme-switch";
+      text = builtins.readFile "${project_root}/scripts/theme-switch.sh";
+      runtimeInputs = [pkgs.gawk pkgs.gnugrep pkgs.systemdMinimal pkgs.darkman pkgs.theme-manager];
+    };
+  in [
     theme-switch
     yazi-wrapper
     xdg-terminal-exec
     pkgs.blender # A 3D modeling and animation software
-    pkgs.prismlauncher
+    # TODO: Java 8 is not working
+    # pkgs.prismlauncher
     pkgs.glib
-    pkgs.caprine
+    pkgs.master.caprine
     pkgs.trash-cli
 
     # Hyprland
-    pkgs.waybar # A Wayland bar for Sway and Hyprland
+    pkgs.waybar # A Wayland bar for Hyprland
     pkgs.bun # to run ags
     pkgs.hyprpaper # A wallpaper utility for Hyprland
     pkgs.wl-clipboard # A command-line copy/paste tool for Wayland
@@ -116,7 +123,6 @@ in {
     pkgs.inotify-tools # A set of command-line utilities for monitoring file system events
     pkgs.libnotify # A library for sending desktop notifications
     pkgs.ddcutil # A monitor control tool
-    pkgs.quickemu # A quick emu launcher
 
     # Shell
     pkgs.obs-studio # A free and open-source video recording and live streaming software
@@ -127,7 +133,6 @@ in {
     pkgs.vlc # A multimedia player
 
     # Text editor
-    pkgs.onlyoffice-bin # An office suite
     pkgs.pdfgrep # A tool to search text in PDF files
 
     pkgs.adw-gtk3
@@ -167,9 +172,6 @@ in {
     pkgs.hwinfo # A hardware information tool
     pkgs.imagemagick # A suite of image manipulation tools
     pkgs.yt-dlp # A command-line tool to download videos from YouTube and other sites
-
-    # build tools
-    pkgs.buildifier
   ];
 
   mac_packages = [

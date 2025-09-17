@@ -15,8 +15,10 @@
 in {
   imports = [
     inputs.xremap-flake.homeManagerModules.default
-    inputs.spicetify-nix.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
+    inputs.hyprcursor-phinger.homeManagerModules.hyprcursor-phinger
+    inputs.stylix.homeModules.stylix
+    inputs.self.homeManagerModules.theme-manager
     "${project_root}/nix/home-manager/configs/zsh.nix"
     "${project_root}/nix/home-manager/configs/kitty.nix"
     "${project_root}/nix/home-manager/configs/hyprland/hyprland.nix"
@@ -30,13 +32,13 @@ in {
     "${project_root}/nix/home-manager/configs/tmux.nix"
     "${project_root}/nix/home-manager/configs/tofi.nix"
     "${project_root}/nix/home-manager/configs/yazi.nix"
-    "${project_root}/nix/home-manager/configs/swaylock.nix"
+    "${project_root}/nix/home-manager/configs/hyprlock.nix"
+    "${project_root}/nix/home-manager/configs/vscode.nix"
+    # "${project_root}/nix/home-manager/configs/vicinae.nix"
     "${project_root}/nix/home-manager/systemd.nix"
     "${project_root}/nix/home-manager/configs/stylix.nix"
     "${project_root}/nix/home-manager/configs/activitywatch.nix"
     "${project_root}/nix/home-manager/configs/ssh.nix"
-    inputs.hyprcursor-phinger.homeManagerModules.hyprcursor-phinger
-    inputs.stylix.homeModules.stylix
   ];
 
   # Home Manager needs a bit of information about you and the
@@ -45,14 +47,6 @@ in {
   home.homeDirectory = "/home/${userdata.username}";
 
   home.packages = package_config.default_packages ++ package_config.linux_packages;
-
-  programs.spicetify = let
-    spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
-  in {
-    enable = true;
-    enabledExtensions = with spicePkgs.extensions; [
-    ];
-  };
 
   services.xremap = {
     withWlroots = true;
@@ -92,12 +86,11 @@ in {
   fonts.fontconfig.enable = true;
 
   home.file = {
-    ".local/bin/vscode_extension.py".source = "${project_root}/scripts/vscode_extension.py";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
 
     # TODO: Not hermetic, relying on dotfiles install at dotfiles
-    ".config/Code/User/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/settings.json";
-    ".config/Code/User/keybindings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/keybindings.json";
+    # ".config/Code/User/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/settings.json";
+    # ".config/Code/User/keybindings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/keybindings.json";
     ".config/nvim".source =
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
@@ -107,7 +100,6 @@ in {
     ".local/share/applications/uxplay.desktop".source = "${project_root}/utilities/desktops/uxplay.desktop";
 
     ".config/tmuxinator".source = "${project_root}/utilities/tmuxinator";
-    ".tmux.conf".source = "${project_root}/utilities/tmux/.tmux.conf";
     ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 

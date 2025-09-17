@@ -72,12 +72,17 @@
     # -------------------------------------------------------------------
     plenary-nvim # A collection of Lua functions that many other plugins depend on.
     nui-nvim # A library of UI components to help build Neovim plugins.
+    nvim-notify # A fancy notification manager for Neovim.
 
     # -------------------------------------------------------------------
     # Themes and Appearance
     # -------------------------------------------------------------------
     vscode-nvim # A theme for Neovim inspired by Visual Studio Code aesthetics.
+    nord-nvim
+    catppuccin-nvim
     auto-dark-mode-nvim
+    everforest
+    onedarkpro-nvim # OneDarkPro theme for Neovim with both light and dark variants
 
     # -------------------------------------------------------------------
     # Plugin Management and Lazy Loading
@@ -123,7 +128,7 @@
   extra-packages = with pkgs; [
     lua51Packages.luarocks
     lua51Packages.lua
-    nodejs_24
+    nodejs_20
   ];
 
   # Function to extract language name from grammar package name
@@ -132,6 +137,17 @@
     withoutPrefix = lib.removePrefix "vimplugin-treesitter-grammar-" grammar.name;
   in
     withoutPrefix;
+
+  # Create a wrapped neovim with packages available
+  neovim-with-packages = pkgs.symlinkJoin {
+    name = "neovim-with-packages";
+    paths = [pkgs.neovim];
+    buildInputs = [pkgs.makeWrapper];
+    postBuild = ''
+      wrapProgram $out/bin/nvim \
+        --prefix PATH : ${lib.makeBinPath (formatters ++ lsp-servers ++ linters ++ extra-packages)}
+    '';
+  };
 
   local-plugin-dir = pkgs.runCommand "vim-plugins" {} ''
     mkdir -p $out
@@ -151,5 +167,7 @@
   '';
 in {
   home.file.".local/share/vim-plugins".source = local-plugin-dir;
-  home.packages = formatters ++ lsp-servers ++ linters ++ extra-packages;
+
+  # Install our wrapped neovim instead of using programs.neovim
+  home.packages = [neovim-with-packages];
 }
