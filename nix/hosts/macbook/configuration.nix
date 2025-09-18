@@ -11,7 +11,7 @@ in {
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [pkgs.mariadb pkgs.neovim pkgs.git pkgs.cocoapods pkgs.wireguard-tools pkgs.qrencode];
+  environment.systemPackages = [pkgs.mariadb pkgs.neovim pkgs.git pkgs.cocoapods pkgs.wireguard-tools pkgs.qrencode pkgs.rust-bin.stable.latest.default];
 
   # ...
 

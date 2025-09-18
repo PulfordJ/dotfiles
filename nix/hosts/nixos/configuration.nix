@@ -166,6 +166,7 @@
     gparted
     xorg.xmodmap
     claude-code
+    rust-bin.stable.latest.default
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

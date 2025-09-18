@@ -4,6 +4,7 @@ in [
   (mkSubPkgsOverlay "master" inputs.master)
   (mkSubPkgsOverlay "nixpkgs-stable" inputs.nixpkgs-stable)
   inputs.nur.overlays.default
+  inputs.rust-overlay.overlays.default
   (import ./firefox-addons.nix)
   (import ./vim-plugins.nix inputs)
   (import ./vicinae.nix inputs)

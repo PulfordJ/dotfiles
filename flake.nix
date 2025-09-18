@@ -44,6 +44,7 @@
       flake = false;
     };
     nur.url = "github:nix-community/nur";
+    rust-overlay.url = "github:oxalica/rust-overlay";
 
     nix-monitored = {
       url = "github:ners/nix-monitored";

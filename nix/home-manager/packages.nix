@@ -73,10 +73,8 @@ in {
     pkgs.starship
     pkgs.nix-output-monitor
     pkgs.neovim
-    pkgs.vscode
 
     # Rust development tools
-    pkgs.rustup # Rust toolchain installer and version manager (includes rustc, cargo, rustfmt, clippy, rust-analyzer)
     pkgs.stylua
     pkgs.clang-tools
     pkgs.shfmt
