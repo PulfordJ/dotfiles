@@ -40,6 +40,21 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
+  # USB power management and enumeration fixes
+  boot.kernelParams = [
+    "usbcore.autosuspend=-1"  # Disable USB autosuspend
+    "usb-storage.delay_use=0" # Reduce USB storage initialization delay
+  ];
+
+  # Disable USB port power management for problematic hubs
+  services.udev.extraRules = ''
+    # Disable autosuspend for VIA Labs USB hubs (causing enumeration delays)
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="2817", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="0817", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="174c", ATTR{idProduct}=="2074", ATTR{power/autosuspend}="-1"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="174c", ATTR{idProduct}=="3074", ATTR{power/autosuspend}="-1"
+  '';
+
   # Enable OpenGL
   hardware.graphics = {
     enable = true;
