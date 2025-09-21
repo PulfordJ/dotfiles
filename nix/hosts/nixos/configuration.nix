@@ -192,8 +192,10 @@
     enable = true;
     settings.default_session.command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%A, %B %e, %Y -- %I:%M:%S %p' --cmd 'uwsm start default'";
   };
+
   security.pam.services.greetd.enableGnomeKeyring = true;
   security.pam.services.hyprlock.enableGnomeKeyring = true;
+  security.pam.services.hyprlock = {};
 
   # Enable the OpenSSH daemon.
   services.openssh = {
@@ -206,7 +208,6 @@
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"
     KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
   '';
-  security.pam.services.hyprlock = {};
   # rtkit is optional but recommended
   security.rtkit.enable = true;
   services.pipewire = {

@@ -188,6 +188,7 @@
         modules = [
           ./nix/hosts/nixos/configuration.nix
           ./nix/hosts/nixos/hardware-configuration.nix
+          ./nix/hosts/nixos/yubikey.nix
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
           agenix.nixosModules.default
