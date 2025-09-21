@@ -1,7 +1,7 @@
 {
-  username = "john";
+  username = "celia";
   email = "johnpulford@gmail.com";
-  name = "John Pulford";
+  name = "Celia Rodriguez Martinez";
 
   # Set to true to use a hermetic Neovim configuration
   # With this option enabled, you modify your Neovim configuration in the dotfiles repository, then run

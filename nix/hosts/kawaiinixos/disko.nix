@@ -1,50 +1,41 @@
-{
-  disko.devices = {
-    disk = {
-      main = {
-        type = "disk";
-        device = "<disk-name>";
+main = {
+  type = "disk";
+  device = "/dev/nvme1n1";
+  content = {
+    type = "gpt";
+    partitions = {
+      ESP = {
+        size = "512M";
+        type = "EF00";
         content = {
-          type = "gpt";
-          partitions = {
-            ESP = {
-              size = "512M";
-              start = "1M";
-              type = "EF00";
-              content = {
-                type = "filesystem";
-                format = "vfat";
-                mountpoint = "/boot";
-                mountOptions = [
-                  "defaults"
-                ];
-              };
-            };
-            root = {
-              size = "100%";
-              start = "512M";
-              end = "-8G";
-              content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/";
-                mountOptions = [
-                  "defaults"
-                ];
-              };
-            };
-            swap = {
-              size = "8G";
-              start = "-8G";
-              content = {
-                type = "swap";
-                randomEncryption = true;
-              };
-            };
-          };
+          type = "filesystem";
+          format = "vfat";
+          mountpoint = "/boot";
+          mountOptions = [
+            "defaults"
+          ];
+          label = "boot";
+        };
+      };
+      swap = {
+        size = "8G";
+        content = {
+          type = "swap";
+          randomEncryption = true;
+        };
+      };
+      root = {
+        size = "100%";
+        content = {
+          type = "filesystem";
+          format = "ext4";
+          mountpoint = "/";
+          mountOptions = [
+            "defaults"
+          ];
+          label = "nixos";
         };
       };
     };
   };
-}
-
+};

@@ -104,10 +104,10 @@
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        users.${userdata.username} = import configPath;
+        users.${kawaiiuserdata.username} = import configPath;
         extraSpecialArgs = {
           inherit project_root inputs;
-          userdata = userdata;
+          userdata = kawaiiuserdata;
         };
       };
     };
@@ -222,12 +222,13 @@
       kawaiinixos = nixpkgs-unstable.lib.nixosSystem {
         pkgs = mkPkgs "x86_64-linux";
         specialArgs = {
-          inherit inputs kawaiiuserdata;
+          inherit inputs;
+          userdata = kawaiiuserdata;
         };
         modules = [
           ./nix/hosts/nixos/configuration.nix
           ./nix/hosts/kawaiinixos/hardware-configuration.nix
-          ./nix/hosts/kawaiinixos/disko.nix
+          #./nix/hosts/kawaiinixos/disko.nix
           disko.nixosModules.disko
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
