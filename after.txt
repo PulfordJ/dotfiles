@@ -1,0 +1,13 @@
+Interface: wlp12s0, type: EN10MB, MAC: 3c:0a:f3:8f:f9:15, IPv4: 192.168.0.25
+Starting arp-scan 1.10.0 with 256 hosts (https://github.com/royhills/arp-scan)
+192.168.0.1	18:35:d1:4b:e8:48	ARRIS Group, Inc.
+192.168.0.12	44:72:ac:ce:b5:89	(Unknown)
+192.168.0.23	44:72:ac:45:fa:1b	(Unknown)
+192.168.0.15	da:cf:ce:d5:a9:85	(Unknown: locally administered)
+192.168.0.14	1a:b3:cc:6f:97:85	(Unknown: locally administered)
+192.168.0.28	cc:28:aa:46:ad:78	(Unknown)
+192.168.0.45	88:a2:9e:00:a5:1c	(Unknown)
+192.168.0.11	ec:64:c9:d0:f7:87	(Unknown)
+
+8 packets received by filter, 0 packets dropped by kernel
+Ending arp-scan 1.10.0: 256 hosts scanned in 1.890 seconds (135.45 hosts/sec). 8 responded

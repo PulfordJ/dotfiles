@@ -100,14 +100,14 @@
         config.allowUnfree = true;
       };
 
-    mkHomeManagerModule = configPath: {
+    mkHomeManagerModule = configPath: userdata: {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        users.${kawaiiuserdata.username} = import configPath;
+        users.${userdata.username} = import configPath;
         extraSpecialArgs = {
           inherit project_root inputs;
-          userdata = kawaiiuserdata;
+          inherit userdata;
         };
       };
     };
@@ -128,7 +128,7 @@
           ./nix/hosts/macbook/configuration.nix
           inputs.nix-speedtest-module.darwinModules.default
           home-manager.darwinModules.home-manager
-          (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
+          (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix" userdata)
           agenix.darwinModules.default
           #agenix-rekey.nixosModules.default
           ./secrets/macsecrets.nix
@@ -151,7 +151,7 @@
           diskoPath
           hostPath
           home-manager.nixosModules.home-manager
-          (mkHomeManagerModule homePath)
+          (mkHomeManagerModule homePath userdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
@@ -190,7 +190,7 @@
           ./nix/hosts/nixos/hardware-configuration.nix
           ./nix/hosts/nixos/yubikey.nix
           home-manager.nixosModules.home-manager
-          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" userdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
@@ -231,7 +231,7 @@
           #./nix/hosts/kawaiinixos/disko.nix
           disko.nixosModules.disko
           home-manager.nixosModules.home-manager
-          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix")
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" kawaiiuserdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
