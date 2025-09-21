@@ -40,15 +40,21 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  # USB power management and enumeration fixes
+  # USB enumeration fixes - disable problematic port
   boot.kernelParams = [
     "usbcore.autosuspend=-1"  # Disable USB autosuspend
     "usb-storage.delay_use=0" # Reduce USB storage initialization delay
+    "usbcore.initial_descriptor_timeout=1000"  # Reduce initial timeout from 5000ms to 1000ms
+    "usbcore.old_scheme_first=1"  # Try old enumeration scheme first
   ];
 
-  # Disable USB port power management for problematic hubs
+  # Completely disable problematic USB port to prevent enumeration delays
   services.udev.extraRules = ''
-    # Disable autosuspend for VIA Labs USB hubs (causing enumeration delays)
+    # Disable port 1-6.1 which fails enumeration and causes 1-minute delays
+    ACTION=="add", SUBSYSTEM=="usb", KERNELS=="1-6:1.0", ATTR{../1-6.1/authorized}="0" 2>/dev/null || true
+    ACTION=="add", SUBSYSTEM=="usb", DEVPATH=="*/usb1/1-6/1-6.1", ATTR{authorized}="0"
+
+    # Disable autosuspend for working USB hubs
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="2817", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2109", ATTR{idProduct}=="0817", ATTR{power/autosuspend}="-1"
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="174c", ATTR{idProduct}=="2074", ATTR{power/autosuspend}="-1"
