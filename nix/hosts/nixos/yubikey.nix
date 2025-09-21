@@ -23,8 +23,6 @@
       # For YubiKey Bio: try fingerprint first, then PIN
       userverification = 1;
       pinverification = 0;
-      # Enable debug logging for troubleshooting
-      debug = true;
     };
   };
 
@@ -36,6 +34,12 @@
 
   # Enable PC/SC daemon for smart card support (required for YubiKey)
   services.pcscd.enable = true;
+
+  # Create U2F mappings file with dynamic username
+  environment.etc."u2f_mappings" = {
+    text = "${userdata.username}:*,ln4XGDk9dLhvFDgzbzLVAq4cpjgDxHwymdSwwuu7GFICuxtOet3G/9F2/7+TzDB9kPu43wT0q947U9nDgK3K7g==,es256,+presence\n";
+    mode = "0644";
+  };
 
   # Polkit rules for PC/SC access
   security.polkit.extraConfig = ''
