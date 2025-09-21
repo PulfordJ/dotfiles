@@ -51,7 +51,6 @@
   # Completely disable problematic USB port to prevent enumeration delays
   services.udev.extraRules = ''
     # Disable port 1-6.1 which fails enumeration and causes 1-minute delays
-    ACTION=="add", SUBSYSTEM=="usb", KERNELS=="1-6:1.0", ATTR{../1-6.1/authorized}="0" 2>/dev/null || true
     ACTION=="add", SUBSYSTEM=="usb", DEVPATH=="*/usb1/1-6/1-6.1", ATTR{authorized}="0"
 
     # Disable autosuspend for working USB hubs
