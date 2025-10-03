@@ -24,7 +24,9 @@
       "Bash(sg pcscd:*)",
       "Bash(sudo systemctl restart:*)",
       "Bash(sudo udevadm control:*)",
-      "Bash(sudo udevadm:*)"
+      "Bash(sudo udevadm:*)",
+      "Bash(lspci:*)",
+      "Bash(nvidia-smi:*)"
     ],
     "deny": [],
     "ask": [],

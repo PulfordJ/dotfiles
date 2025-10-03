@@ -167,6 +167,9 @@
     xorg.xmodmap
     claude-code
     rust-bin.stable.latest.default
+
+    # CUDA toolkit
+    cudatoolkit
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

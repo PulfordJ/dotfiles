@@ -94,6 +94,9 @@ in {
     yazi-wrapper
     xdg-terminal-exec
     pkgs.blender # A 3D modeling and animation software
+
+    # CUDA development tools
+    pkgs.nvitop # GPU monitoring tool
     # TODO: Java 8 is not working
     # pkgs.prismlauncher
     pkgs.glib

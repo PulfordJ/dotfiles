@@ -77,4 +77,12 @@
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
+
+  # Set up library path for CUDA applications
+  environment.sessionVariables = {
+    LD_LIBRARY_PATH = lib.makeLibraryPath [
+      pkgs.cudatoolkit
+      pkgs.linuxPackages.nvidia_x11
+    ];
+  };
 }
