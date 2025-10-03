@@ -80,6 +80,7 @@ in {
     pkgs.shfmt
     pkgs.black
     pkgs.alejandra
+    pkgs.gcc
   ];
 
   linux_packages = let
