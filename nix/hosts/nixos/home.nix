@@ -223,7 +223,7 @@ in {
   };
   systemd.user.services.fcitx5-daemon = lib.mkForce {};
 
-  # systemd.user.sessionVariables = config.home.sessionVariables;
+  systemd.user.sessionVariables = config.home.sessionVariables;
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
