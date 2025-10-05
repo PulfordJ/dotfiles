@@ -44,6 +44,8 @@
         "https://nixos-raspberrypi.cachix.org"
         "https://hyprland.cachix.org"
         "https://yazi.cachix.org"
+        "https://nix-community.cachix.org"
+        "https://cuda-maintainers.cachix.org"
       ];
     in {
       builders-use-substitutes = true;
@@ -55,6 +57,8 @@
         "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
         "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
       ];
     };
   };
@@ -133,7 +137,7 @@
   users.users.${userdata.username} = {
     isNormalUser = true;
     description = userdata.name;
-    extraGroups = ["networkmanager" "wheel" "input" "i2c" "docker" "nixbld"];
+    extraGroups = ["networkmanager" "wheel" "input" "i2c" "docker"];
     packages = with pkgs; [
       jdk17
       xdg-utils
@@ -169,7 +173,7 @@
     rust-bin.stable.latest.default
 
     # CUDA toolkit
-    cudatoolkit
+    cudaPackages.cudatoolkit
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

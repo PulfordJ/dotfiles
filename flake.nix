@@ -217,6 +217,8 @@
           inputs.disko.nixosModules.disko
           ./nix/hosts/rpi/disko.nix
           ./nix/hosts/rpi/configuration.nix
+          ./cachix.nix
+          ./cuda-maintainers.nix
         ];
       };
       kawaiinixos = nixpkgs-unstable.lib.nixosSystem {

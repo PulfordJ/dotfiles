@@ -81,7 +81,7 @@
   # Set up library path for CUDA applications
   environment.sessionVariables = {
     LD_LIBRARY_PATH = lib.makeLibraryPath [
-      pkgs.cudatoolkit
+      pkgs.cudaPackages.cudatoolkit
       pkgs.linuxPackages.nvidia_x11
     ];
   };

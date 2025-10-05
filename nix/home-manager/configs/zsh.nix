@@ -45,7 +45,7 @@ in {
     sessionVariables = {
       ZVM_INIT_MODE = "sourcing";
       LD_LIBRARY_PATH = lib.makeLibraryPath [
-        pkgs.cudatoolkit
+        pkgs.cudaPackages.cudatoolkit
         pkgs.linuxPackages.nvidia_x11
       ];
     };
