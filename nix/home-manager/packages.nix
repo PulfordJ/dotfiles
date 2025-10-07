@@ -151,7 +151,6 @@ in {
     pkgs.cantarell-fonts # Cantarell fonts
     pkgs.noto-fonts-color-emoji # Noto Color Emoji fonts
     pkgs.iosevka # Iosevka monospace fonts
-    inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd
     inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd
     inputs.apple-fonts.packages.${pkgs.system}.ny-nerd
 
