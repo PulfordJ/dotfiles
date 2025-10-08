@@ -49,7 +49,10 @@
       "Bash(exec zsh)",
       "Bash(env)",
       "Bash(export ANDROID_SDK_ROOT=\"/nix/store/37dp6ka8v3msrpnq8ikyq9wiqa2irb55-androidsdk/libexec/android-sdk\")",
-      "Bash(export ANDROID_HOME=\"/nix/store/37dp6ka8v3msrpnq8ikyq9wiqa2irb55-androidsdk/libexec/android-sdk\")"
+      "Bash(export ANDROID_HOME=\"/nix/store/37dp6ka8v3msrpnq8ikyq9wiqa2irb55-androidsdk/libexec/android-sdk\")",
+      "Read(//Users/john/flutterprojects/**)",
+      "Read(//Users/john/dotfiles/nix/home-manager/**)",
+      "Read(//Users/john/dotfiles/**)"
     ],
     "deny": [],
     "ask": [],

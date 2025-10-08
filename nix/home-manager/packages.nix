@@ -8,11 +8,14 @@
   androidSdk = pkgs.androidenv.composeAndroidPackages {
     cmdLineToolsVersion = "19.0";
     platformToolsVersion = "35.0.2";
-    buildToolsVersions = ["35.0.0"];
+    buildToolsVersions = ["35.0.0" "34.0.0"];
     includeEmulator = false;
-    platformVersions = ["34"];
+    platformVersions = ["34" "35" "36"];
     includeSources = false;
     includeSystemImages = false;
+    includeNDK = true;
+    ndkVersions = ["27.0.12077973"];
+    cmakeVersions = ["3.22.1"];
     # Accept all common licenses
     extraLicenses = [
       "android-googletv-license"
