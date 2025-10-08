@@ -4,6 +4,16 @@
   inputs,
   ...
 }: let
+  # Android SDK with proper license acceptance
+  androidSdk = pkgs.androidenv.composeAndroidPackages {
+    cmdLineToolsVersion = "19.0";
+    platformToolsVersion = "35.0.2";
+    buildToolsVersions = [ "35.0.0" ];
+    includeEmulator = false;
+    platformVersions = [ "34" ];
+    includeSources = false;
+    includeSystemImages = false;
+  };
   yazi-wrapper = pkgs.writeShellApplication {
     name = "yazi-wrapper";
     text = ''
@@ -48,6 +58,7 @@
       sh -c "$command"
     '';
   };
+  
   xdg-terminal-exec = pkgs.writers.writeBashBin "xdg-terminal-exec" ''
     #!/bin/sh
     test -n "$*" && args=("$@")
@@ -81,6 +92,7 @@ in {
     pkgs.black
     pkgs.alejandra
     pkgs.gcc
+    androidSdk.androidsdk
   ];
 
   linux_packages = let
@@ -177,4 +189,7 @@ in {
 
   mac_packages = [
   ];
+  
+  # Export Android SDK for use in other modules
+  inherit androidSdk;
 }

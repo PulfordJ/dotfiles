@@ -37,6 +37,8 @@ in {
   home.sessionVariables = {
     EDITOR = "nvim";
     TERMINAL = "iterm2";
+    ANDROID_SDK_ROOT = "${package_config.androidSdk.androidsdk}/libexec/android-sdk";
+    ANDROID_HOME = "${package_config.androidSdk.androidsdk}/libexec/android-sdk";
   };
 
   home.file = {

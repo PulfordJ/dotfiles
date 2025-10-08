@@ -97,7 +97,10 @@
       import nixpkgs-unstable {
         inherit system;
         overlays = import "${project_root}/nix/overlays" inputs;
-        config.allowUnfree = true;
+        config = {
+          allowUnfree = true;
+          android_sdk.accept_license = true;
+        };
       };
 
     mkHomeManagerModule = configPath: userdata: {

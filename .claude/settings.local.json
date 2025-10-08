@@ -39,12 +39,21 @@
       "Bash(then)",
       "Bash(else)",
       "Bash(fi)",
-      "Bash(if nvcc --version)"
+      "Bash(if nvcc --version)",
+      "Bash(sudo:*)",
+      "Bash(export NIXPKGS_ACCEPT_ANDROID_SDK_LICENSE=1)",
+      "Bash(source:*)",
+      "Bash(flutter:*)",
+      "Bash(ls:*)",
+      "Bash($ANDROID_HOME/tools/bin/sdkmanager:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "/Users/john/nix-speedtest-module"
+      "/Users/john/nix-speedtest-module",
+      "/Users/john/Library/Android/sdk",
+      "/nix/store/56lqb104d6cndzlb26qgmi6s7yafxyih-android-tools-35.0.2/bin",
+      "/nix/store/56lqb104d6cndzlb26qgmi6s7yafxyih-android-tools-35.0.2"
     ]
   }
 }
