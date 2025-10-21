@@ -1,5 +1,28 @@
 # John Pulford's dotfiles repo
 
+
+### Quick Update Commands
+To update the system configuration, use one of these commands:
+
+```bash
+# For NixOS systems (can run as root initially, but long-term should run as user)
+sudo nixos-rebuild switch --flake .#nixos --cores 0
+
+# For specific host configurations
+sudo nixos-rebuild switch --flake .#kawaiinixos --cores 0
+sudo nixos-rebuild switch --flake .#rossnixos --cores 0
+```
+
+### Important Notes
+- **Initial Setup**: You can run these commands as root during initial setup
+- **Long-term Usage**: Should be run as the user specified in the relevant userdata file from their home directory (`~/dotfiles`)
+- **Why User Directory**: Some configuration folders expect to be writable by the user, so running from the user's home directory ensures configs work properly
+
+---
+## ⚠️ OUTDATED CONTENT BELOW
+
+**The information below is outdated. For current usage, see the updated instructions:**
+
 ## Screenshot
 
 ![alt text](./images/dwm-desktop.png "Screenshot")

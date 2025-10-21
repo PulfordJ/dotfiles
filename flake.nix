@@ -93,6 +93,7 @@
     project_root = ./.;
     userdata = import ./userdata.nix;
     kawaiiuserdata = import ./kawaiiuserdata.nix;
+    rossuserdata = import ./rossuserdata.nix;
     mkPkgs = system:
       import nixpkgs-unstable {
         inherit system;
@@ -237,6 +238,23 @@
           disko.nixosModules.disko
           home-manager.nixosModules.home-manager
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" kawaiiuserdata)
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
+      };
+      rossnixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+          userdata = rossuserdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/rossnixos/hardware-configuration.nix
+          disko.nixosModules.disko
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" rossuserdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
