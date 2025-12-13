@@ -100,4 +100,28 @@ in {
       bg = lib.mkForce "";
     };
   };
+
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      # UI settings
+      style = "compact";
+      show_preview = true;
+
+      # Search settings
+      search_mode = "fuzzy";
+      filter_mode_shell_up_key_binding = "directory";
+
+      # Privacy settings
+      sync_address = "";  # Disable sync by default
+      auto_sync = false;
+    };
+  };
+
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+  };
 }

@@ -98,6 +98,9 @@ in {
     pkgs.starship
     pkgs.nix-output-monitor
     pkgs.neovim
+    pkgs.atuin # Magical shell history with sync and search
+    pkgs.anki-bin # Spaced repetition flashcard program
+    pkgs.direnv # Automatic environment loading for project directories
 
     # Rust development tools
     pkgs.stylua
@@ -106,6 +109,7 @@ in {
     pkgs.black
     pkgs.alejandra
     pkgs.gcc
+    pkgs.postgresql # PostgreSQL client (psql)
     androidSdk.androidsdk
   ];
 
@@ -202,6 +206,7 @@ in {
   ];
 
   mac_packages = [
+    pkgs.teleport # Teleport tsh client for secure access to SSH servers and clusters
   ];
 
   # Export Android SDK for use in other modules
