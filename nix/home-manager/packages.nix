@@ -98,6 +98,7 @@ in {
     pkgs.starship
     pkgs.nix-output-monitor
     pkgs.neovim
+    pkgs.gemini-cli
     pkgs.atuin # Magical shell history with sync and search
     pkgs.anki-bin # Spaced repetition flashcard program
     pkgs.direnv # Automatic environment loading for project directories

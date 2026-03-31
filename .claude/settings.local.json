@@ -52,7 +52,8 @@
       "Bash(export ANDROID_HOME=\"/nix/store/37dp6ka8v3msrpnq8ikyq9wiqa2irb55-androidsdk/libexec/android-sdk\")",
       "Read(//Users/john/flutterprojects/**)",
       "Read(//Users/john/dotfiles/nix/home-manager/**)",
-      "Read(//Users/john/dotfiles/**)"
+      "Read(//Users/john/dotfiles/**)",
+      "Bash(brew search:*)"
     ],
     "deny": [],
     "ask": [],

@@ -191,6 +191,8 @@ in {
     # ];
     brews = [
       "displayplacer"
+      "gh"
+      "gemini-cli"
       "libmagic"
       "neovim"
       "ruby"
@@ -200,7 +202,9 @@ in {
     # `brew install --cask`
     casks = [
       "claude-code"
+      "comet"
       "disk-inventory-x"
+      "docker"
       "flutter"
       "iterm2"
       "1password"
@@ -210,6 +214,7 @@ in {
       "brave-browser"
       "signal"
       "messenger"
+      "moonlight"
       "obsidian"
       "discord"
       "kodi"

@@ -170,6 +170,7 @@
     gparted
     xorg.xmodmap
     claude-code
+    gemini-cli
     rust-bin.stable.latest.default
 
     # CUDA toolkit
