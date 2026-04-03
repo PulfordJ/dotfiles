@@ -102,6 +102,7 @@ in {
     pkgs.atuin # Magical shell history with sync and search
     pkgs.anki-bin # Spaced repetition flashcard program
     pkgs.direnv # Automatic environment loading for project directories
+    pkgs.texliveFull # Full LaTeX distribution
 
     # Rust development tools
     pkgs.stylua

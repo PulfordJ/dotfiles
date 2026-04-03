@@ -171,6 +171,7 @@
     xorg.xmodmap
     claude-code
     gemini-cli
+    texliveFull
     rust-bin.stable.latest.default
 
     # CUDA toolkit
