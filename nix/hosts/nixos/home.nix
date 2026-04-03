@@ -86,6 +86,7 @@ in {
   fonts.fontconfig.enable = true;
 
   home.file = {
+    ".config/claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
 
     # TODO: Not hermetic, relying on dotfiles install at dotfiles

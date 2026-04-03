@@ -53,6 +53,7 @@
       "Read(//Users/john/flutterprojects/**)",
       "Read(//Users/john/dotfiles/nix/home-manager/**)",
       "Read(//Users/john/dotfiles/**)",
+      "Read(//Users/john/.config/claude/CLAUDE.md)",
       "Bash(brew search:*)"
     ],
     "deny": [],

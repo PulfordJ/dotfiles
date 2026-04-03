@@ -42,6 +42,7 @@ in {
   };
 
   home.file = {
+    ".config/claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/iterm".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/iterm";
     ".config/nvim".source =
