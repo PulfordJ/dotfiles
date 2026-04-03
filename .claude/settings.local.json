@@ -54,6 +54,7 @@
       "Read(//Users/john/dotfiles/nix/home-manager/**)",
       "Read(//Users/john/dotfiles/**)",
       "Read(//Users/john/.config/claude/CLAUDE.md)",
+      "Read(//Users/john/.gemini/GEMINI.md)",
       "Bash(brew search:*)"
     ],
     "deny": [],

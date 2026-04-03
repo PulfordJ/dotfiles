@@ -87,6 +87,7 @@ in {
 
   home.file = {
     ".config/claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
+    ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
 
     # TODO: Not hermetic, relying on dotfiles install at dotfiles
