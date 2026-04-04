@@ -45,6 +45,7 @@
     };
     nur.url = "github:nix-community/nur";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    impermanence.url = "github:nix-community/impermanence";
 
     nix-monitored = {
       url = "github:ners/nix-monitored";
@@ -197,6 +198,7 @@
           (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" userdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
+          inputs.impermanence.nixosModules.impermanence
           ./secrets/secrets.nix
         ];
       };
