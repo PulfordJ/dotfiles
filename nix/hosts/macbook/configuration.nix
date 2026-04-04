@@ -226,7 +226,6 @@ in {
       "android-studio"
       "android-platform-tools"
       "caffeine"
-      "expressvpn"
       "google-chrome"
       "libreoffice"
       "grandperspective"
