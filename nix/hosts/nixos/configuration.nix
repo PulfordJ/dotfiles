@@ -11,7 +11,6 @@
 }: {
   imports = [
     ./uxplay.nix
-    ./persistence.nix
   ];
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
