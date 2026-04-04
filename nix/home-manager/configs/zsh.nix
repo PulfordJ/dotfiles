@@ -51,7 +51,7 @@ in {
       ];
     };
 
-    initContent = ''
+    initExtra = ''
       ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
@@ -59,7 +59,12 @@ in {
 
       if [ ! -d "/etc/nixos" ]; then
         export CONDA_CHANGEPS1=false
-        export PATH=/etc/profiles/per-user/$USER/bin:$PATH
+        # Put Homebrew in front of Nix per-user profile on macOS
+        if [ -d "/opt/homebrew/bin" ]; then
+          export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/etc/profiles/per-user/$USER/bin:$PATH
+        else
+          export PATH=/etc/profiles/per-user/$USER/bin:$PATH
+        fi
       fi
 
       # Use vim keys in tab complete menu:
