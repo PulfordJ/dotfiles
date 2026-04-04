@@ -16,8 +16,12 @@ in {
     # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
     settings = {
       # See https://wiki.hyprland.org/Configuring/Monitors/
+      # Using specific monitor identifiers to ensure consistent positioning
+      # DP-4: Left monitor (ASUS ROG XG27AQ, Serial: R2LMQS015857)
+      # DP-5: Right monitor (ASUS ROG XG27AQ, Serial: M4LMQS000641)
       monitor = [
-        ",preferred,auto,1"
+        "DP-5,2560x1440@144,0x0,1"        # Right monitor -> Left position
+        "DP-4,2560x1440@144,2560x0,1"     # Left monitor -> Right position
       ];
 
       ecosystem = {
