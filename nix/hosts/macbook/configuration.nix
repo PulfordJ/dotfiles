@@ -240,7 +240,6 @@ in {
       "utm"
       "visual-studio-code"
       "vlc"
-      "whisky"
     ];
     # mas install https://www.moncefbelyamani.com/how-to-install-xcode-with-homebrew/
     masApps = {
