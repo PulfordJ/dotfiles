@@ -61,6 +61,12 @@ in {
     userEmail = userdata.email;
     extraConfig = {
       core = {editor = "nvim";};
+      # Clear osxkeychain (set by Nix git's system config) for CodeCommit and use
+      # only the AWS credential helper. Empty string resets the inherited helper list.
+      "credential \"https://git-codecommit.eu-west-1.amazonaws.com\"" = {
+        helper = ["" "!/opt/homebrew/bin/aws codecommit credential-helper $@"];
+        useHttpPath = true;
+      };
     };
   };
 }
