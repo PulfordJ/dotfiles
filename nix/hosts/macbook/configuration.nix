@@ -190,6 +190,7 @@ in {
     #   }
     # ];
     brews = [
+      "awscli"
       "displayplacer"
       "gh"
       "gemini-cli"
