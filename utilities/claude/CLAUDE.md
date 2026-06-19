@@ -15,7 +15,36 @@ To determine if a repository is private and belongs to `pulfordj`, use the GitHu
 * **Checking Visibility:** Use `gh repo view --json visibility` to get the visibility status (returns "PRIVATE" or "PUBLIC").
 * **Checking Owner:** Use `gh repo view --json owner` to check if the repository belongs to `pulfordj`.
 
-# 3. Git Workflow: Committing and Pushing
+# 3. Jupyter Notebook Workflow
+When modifying a Jupyter notebook (`.ipynb`), always execute it after making changes and sync the outputs back to the source file so it is self-contained.
+
+**Execution:** Use `jupyter-nbconvert --to notebook --execute` to run the notebook. Find the correct `jupyter-nbconvert` binary via `nix develop --command which jupyter-nbconvert` if not on PATH.
+
+```bash
+NBCONVERT=$(nix develop --command which jupyter-nbconvert)
+$NBCONVERT --to notebook --execute \
+  --ExecutePreprocessor.timeout=3600 \
+  --ExecutePreprocessor.kernel_name=python3 \
+  notebook.ipynb --output notebook_executed.ipynb
+```
+
+**Sync outputs back to source:** After execution, copy cell outputs and `execution_count` from the executed notebook into the source so the source is fully self-contained with outputs:
+
+```python
+import json
+with open('notebook_executed.ipynb') as f: nb_ex = json.load(f)
+with open('notebook.ipynb') as f: nb_src = json.load(f)
+ex_by_id = {c['id']: c for c in nb_ex['cells']}
+for cell in nb_src['cells']:
+    if cell.get('id') in ex_by_id and cell['cell_type'] == 'code':
+        cell['outputs'] = ex_by_id[cell['id']].get('outputs', [])
+        cell['execution_count'] = ex_by_id[cell['id']].get('execution_count')
+with open('notebook.ipynb', 'w') as f: json.dump(nb_src, f, indent=1)
+```
+
+Do this sync after every notebook execution before committing.
+
+# 4. Git Workflow: Committing and Pushing
 You are responsible for helping me maintain a clean and automated Git history.
 
 * **Always Commit:** When you have successfully completed a logical task, feature, or fix, automatically stage the changes (`git add .`) and create a concise, conventional commit (`git commit -m "feat/fix/chore: description"`).
