@@ -347,114 +347,14 @@ in {
   programs.vscode = {
     enable = true;
     package = pkgs.master.vscode;
-
-    profiles.default = {
-      keybindings =
-        commonKeybindings
-        ++ (
-          if isLinux
-          then linuxKeybindings
-          else []
-        )
-        ++ (
-          if isDarwin
-          then macKeybindings
-          else []
-        );
-
-      userSettings = {
-        "editor.fontFamily" = "SFMono Nerd Font";
-        "editor.minimap.enabled" = false;
-        "editor.rulers" = [120];
-        "files.saveConflictResolution" = "overwriteFileOnDisk";
-        "terminal.integrated.defaultProfile.linux" = "zsh";
-        "vim.leader" = " ";
-        "vim.handleKeys" = {
-          "J" = false;
-          "gJ" = false;
-        };
-        "vim.normalModeKeyBindings" = [
-          {
-            before = ["<TAB>"];
-            commands = ["workbench.action.nextEditorInGroup"];
-            silent = true;
-          }
-          {
-            before = ["<S-TAB>"];
-            commands = ["workbench.action.previousEditorInGroup"];
-            silent = true;
-          }
-          {
-            before = ["<S-x>"];
-            commands = ["workbench.action.closeActiveEditor"];
-            silent = true;
-          }
-        ];
-        "vim.normalModeKeyBindingsNonRecursive" = [
-          {
-            before = ["<leader>" "b"];
-            commands = ["workbench.action.toggleSidebarVisibility"];
-          }
-          {
-            before = ["<leader>" "e"];
-            commands = ["workbench.files.action.showActiveFileInExplorer"];
-          }
-          {
-            before = ["s"];
-            commands = ["flash-vscode.start"];
-          }
-          {
-            before = ["S"];
-            commands = ["flash-vscode.startSelection"];
-          }
-          {
-            before = ["<BS>"];
-            commands = ["flash-vscode.backspace"];
-          }
-          {
-            before = ["<C-o>"];
-            commands = ["workbench.action.navigateBack"];
-            silent = true;
-          }
-        ];
-        "vim.useSystemClipboard" = true;
-        "flash-vscode.caseSensitive" = false;
-        "workbench.iconTheme" = "material-icon-theme";
-        "explorer.confirmDragAndDrop" = false;
-        "files.exclude" = {
-          "**/__pycache__" = true;
-          "**/.pytest_cache" = true;
-        };
-        "[python]".editor.defaultFormatter = "ms-python.black-formatter";
-        "cSpell.userWords" = [
-          "opensearch"
-          "opensearchservice"
-          "openserach"
-          "powertools"
-        ];
-        "chat.tools.autoApprove" = true;
-        "black-formatter.args" = ["--line-length" "120"];
-        "window.customMenuBarAltFocus" = false;
-        "window.enableMenuBarMnemonics" = false;
-        "diffEditor.hideUnchangedRegions.enabled" = true;
-        "json.format.keepLines" = true;
-        "[jsonc]".editor.formatOnSave = true;
-        "github.copilot.enable" = {
-          "*" = true;
-          plaintext = false;
-          markdown = true;
-          scminput = false;
-        };
-        "python.languageServer" = "Default";
-        "python.pyrefly.disableLanguageServices" = true;
-        "security.workspace.trust.untrustedFiles" = "open";
-        "terminal.integrated.enableMultiLinePasteWarning" = "never";
-        "git.blame.editorDecoration.enabled" = true;
-        "explorer.confirmDelete" = false;
-        "accessibility.dimUnfocused.enabled" = true;
-        "everforest.darkContrast" = "hard";
-        "everforest.darkWorkbench" = "flat";
-      };
-    };
   };
+
+  # Manage keybindings via home.file so home-manager never touches settings.json
+  # (VS Code writes settings.json itself and conflicts with symlink management)
+  home.file."Library/Application Support/Code/User/keybindings.json".text =
+    builtins.toJSON (
+      commonKeybindings
+      ++ (if isLinux then linuxKeybindings else [])
+      ++ (if isDarwin then macKeybindings else [])
+    );
 }

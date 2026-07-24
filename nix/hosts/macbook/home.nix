@@ -43,6 +43,9 @@ in {
 
   home.file = {
     ".claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
+    # .claude/settings.json intentionally unmanaged — Claude Code writes to it directly
+    ".claude/skills/sync-beastpc".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/sync-beastpc";
     ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/iterm".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/iterm";
