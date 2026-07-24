@@ -344,13 +344,10 @@
     }
   ];
 in {
-  programs.vscode = {
-    enable = true;
-    package = pkgs.master.vscode;
-  };
+  home.packages = [pkgs.master.vscode];
 
-  # Manage keybindings via home.file so home-manager never touches settings.json
-  # (VS Code writes settings.json itself and conflicts with symlink management)
+  # programs.vscode module intentionally avoided — it manages settings.json
+  # as a symlink even with no userSettings set, conflicting with VS Code's own writes
   home.file."Library/Application Support/Code/User/keybindings.json".text =
     builtins.toJSON (
       commonKeybindings
