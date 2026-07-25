@@ -78,8 +78,10 @@
     test -n "$*" && args=("$@")
     exec kitty -d "$PWD" -e "''${args[@]}"
   '';
-in {
-  default_packages = [
+  # Headless CLI tooling shared by every host. Deliberately free of GUI apps and
+  # multi-GB SDKs so lightweight hosts (WSL) can consume it without pulling in a
+  # desktop or a LaTeX distribution.
+  core_packages = [
     # Utils
     pkgs.bat # A cat clone with syntax highlighting and Git integration
     pkgs.eza # A tiny file explorer
@@ -100,9 +102,7 @@ in {
     pkgs.neovim
     pkgs.gemini-cli
     pkgs.atuin # Magical shell history with sync and search
-    pkgs.anki-bin # Spaced repetition flashcard program
     pkgs.direnv # Automatic environment loading for project directories
-    pkgs.texliveFull # Full LaTeX distribution
 
     # Rust development tools
     pkgs.stylua
@@ -112,8 +112,27 @@ in {
     pkgs.alejandra
     pkgs.gcc
     pkgs.postgresql # PostgreSQL client (psql)
-    androidSdk.androidsdk
   ];
+in {
+  inherit core_packages;
+
+  default_packages =
+    core_packages
+    ++ [
+      pkgs.anki-bin # Spaced repetition flashcard program
+      pkgs.texliveFull # Full LaTeX distribution
+      androidSdk.androidsdk
+    ];
+
+  # WSL has no display server and no system-level module layer, so it takes the
+  # headless core plus a couple of terminal git helpers that live in
+  # `linux_packages` for the desktop hosts.
+  wsl_packages =
+    core_packages
+    ++ [
+      pkgs.lazygit # A simple terminal UI for git commands
+      pkgs.git-lfs
+    ];
 
   linux_packages = let
     theme-switch = pkgs.writeShellApplication {

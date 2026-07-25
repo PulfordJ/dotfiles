@@ -170,6 +170,26 @@
       theme-manager = import "${project_root}/nix/theme-manager/hm-module.nix";
     };
 
+    # ---------------------------------#
+    #  standalone home-manager configs  #
+    # ---------------------------------#
+    # For hosts where Nix sits on top of a foreign distro (WSL on Ubuntu) and
+    # there is therefore no NixOS/nix-darwin layer to hang home-manager off.
+    #
+    #   home-manager switch --flake ~/dotfiles#john@wsl
+    homeConfigurations = {
+      "${userdata.username}@wsl" = home-manager.lib.homeManagerConfiguration {
+        pkgs = mkPkgs "x86_64-linux";
+        extraSpecialArgs = {
+          inherit project_root inputs;
+          # userdata.nix is shared with the GPU desktop, so the CUDA opt-out is
+          # applied here rather than in the file itself.
+          userdata = userdata // {cudaSupport = false;};
+        };
+        modules = [./nix/hosts/wsl/home.nix];
+      };
+    };
+
     # -----------------------#
     # macbook configurations #
     # -----------------------#

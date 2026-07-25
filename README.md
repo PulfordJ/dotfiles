@@ -18,6 +18,43 @@ sudo nixos-rebuild switch --flake .#rossnixos --cores 0
 - **Long-term Usage**: Should be run as the user specified in the relevant userdata file from their home directory (`~/dotfiles`)
 - **Why User Directory**: Some configuration folders expect to be writable by the user, so running from the user's home directory ensures configs work properly
 
+### WSL (standalone home-manager)
+
+WSL runs Nix on top of an ordinary Ubuntu rootfs, so there is no NixOS or
+nix-darwin layer. The `john@wsl` output is a standalone home-manager
+configuration instead (`nix/hosts/wsl/home.nix`): user-level only, no `sudo`.
+
+```bash
+# Bootstrap (home-manager is not installed yet).
+# -b backup renames any pre-existing file it would overwrite to <name>.backup
+nix run github:nix-community/home-manager -- switch -b backup --flake ~/dotfiles#john@wsl
+
+# Subsequent updates (home-manager installs itself into the profile)
+home-manager switch --flake ~/dotfiles#john@wsl
+```
+
+Two manual steps Nix cannot do for you:
+
+1. **Retire `~/.gitconfig`.** home-manager writes `~/.config/git/config`, and git
+   reads *both*, with `~/.gitconfig` taking precedence — so an existing
+   `~/.gitconfig` silently overrides the managed one. Its contents have been
+   folded into `nix/hosts/wsl/home.nix`, so remove it once you have switched:
+   `mv ~/.gitconfig ~/.gitconfig.pre-hm`
+2. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`:
+   ```bash
+   command -v zsh | sudo tee -a /etc/shells
+   chsh -s "$(command -v zsh)"
+   ```
+
+Notes specific to this host:
+- Uses `wsl_packages` (headless core) rather than `default_packages`, which drops
+  `texliveFull`, the Android SDK and `anki-bin`.
+- `cudaSupport = false` is applied at the flake call site, keeping the CUDA
+  `LD_LIBRARY_PATH` (and its multi-GB closure) out of the WSL profile while
+  leaving the GPU desktop hosts unchanged.
+- Claude Code is left to its own self-updating native installer; adding
+  `pkgs.claude-code` here would shadow it and pin the version.
+
 ---
 ## ⚠️ OUTDATED CONTENT BELOW
 
