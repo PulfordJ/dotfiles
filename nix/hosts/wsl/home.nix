@@ -51,6 +51,21 @@ in {
     LANG = "en_US.UTF-8";
   };
 
+  # A login zsh gets none of these otherwise. Nix's zsh does not read
+  # /etc/profile, so /etc/profile.d/nix.sh - which is what puts the Nix profiles
+  # on PATH for bash - never runs, leaving `nix` and `home-manager` unavailable
+  # in a login shell. Ordered by precedence:
+  #   ~/.local/bin  - matches the existing ~/.bashrc prepend. Required so the
+  #                   self-updating Claude Code install wins over the older
+  #                   npm-global copy at /usr/bin/claude.
+  #   ~/.nix-profile/bin           - this home-manager generation.
+  #   /nix/var/nix/profiles/default/bin - the daemon profile, where `nix` lives.
+  home.sessionPath = [
+    "$HOME/.local/bin"
+    "$HOME/.nix-profile/bin"
+    "/nix/var/nix/profiles/default/bin"
+  ];
+
   home.file = {
     # Claude Code reads its global instructions from $CLAUDE_CONFIG_DIR/CLAUDE.md,
     # defaulting to ~/.claude - not ~/.config/claude as the desktop hosts assume.

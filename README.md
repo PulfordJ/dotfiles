@@ -50,11 +50,18 @@ Three manual steps Nix cannot do for you:
    `~/.gitconfig` silently overrides the managed one. Its contents have been
    folded into `nix/hosts/wsl/home.nix`, so remove it once you have switched:
    `mv ~/.gitconfig ~/.gitconfig.pre-hm`
-3. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`:
+3. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`.
+   Use the `~/.nix-profile` path, not the `/nix/store` one, so it survives
+   rebuilds:
    ```bash
-   command -v zsh | sudo tee -a /etc/shells
-   chsh -s "$(command -v zsh)"
+   echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
+   chsh -s "$HOME/.nix-profile/bin/zsh"
    ```
+   Nix's zsh does not read `/etc/profile`, so `/etc/profile.d/nix.sh` — which is
+   what puts the Nix profiles on `PATH` for bash — never runs in a login zsh.
+   Without help, a login shell has neither `nix` nor `home-manager` on `PATH`.
+   `home.sessionPath` in the host config covers this; see the comment there for
+   the ordering rationale.
 
 Notes specific to this host:
 - Uses `wsl_packages` (headless core) rather than `default_packages`, which drops
