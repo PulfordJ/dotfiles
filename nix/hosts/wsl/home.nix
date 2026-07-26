@@ -106,12 +106,6 @@ in {
       "credential \"https://gist.github.com\"" = {
         helper = ["" "!/usr/bin/gh auth git-credential"];
       };
-      safe = {
-        directory = [
-          "/mnt/c/Users/johnp/Projects/netwealthanalysius/transaction_dataframe_standard"
-          "/mnt/c/Users/johnp/Projects/netwealthanalysius/userdata/john"
-        ];
-      };
     };
   };
 
