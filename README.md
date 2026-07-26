@@ -33,14 +33,24 @@ nix run github:nix-community/home-manager -- switch -b backup --flake ~/dotfiles
 home-manager switch --flake ~/dotfiles#john@wsl
 ```
 
-Two manual steps Nix cannot do for you:
+Three manual steps Nix cannot do for you:
 
-1. **Retire `~/.gitconfig`.** home-manager writes `~/.config/git/config`, and git
+1. **Generate the `en_US.UTF-8` locale on the Ubuntu side.** Ubuntu's WSL image
+   ships only `C`/`C.UTF-8`/`POSIX`. The host config sets `LANG=en_US.UTF-8`
+   (home-manager's CLI panics parsing `C.UTF-8` as a language tag and exits 101,
+   *after* activation has already succeeded) and provides a Nix
+   `glibcLocales` via `LOCALE_ARCHIVE` for Nix-built binaries. Ubuntu's own glibc
+   cannot read that archive — different glibc version — so Debian tooling such as
+   `perl` warns until the locale also exists system-side:
+   ```bash
+   sudo locale-gen en_US.UTF-8
+   ```
+2. **Retire `~/.gitconfig`.** home-manager writes `~/.config/git/config`, and git
    reads *both*, with `~/.gitconfig` taking precedence — so an existing
    `~/.gitconfig` silently overrides the managed one. Its contents have been
    folded into `nix/hosts/wsl/home.nix`, so remove it once you have switched:
    `mv ~/.gitconfig ~/.gitconfig.pre-hm`
-2. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`:
+3. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`:
    ```bash
    command -v zsh | sudo tee -a /etc/shells
    chsh -s "$(command -v zsh)"
@@ -54,6 +64,10 @@ Notes specific to this host:
   leaving the GPU desktop hosts unchanged.
 - Claude Code is left to its own self-updating native installer; adding
   `pkgs.claude-code` here would shadow it and pin the version.
+- `utilities/ssh/id_ed25519.pub` is **not** linked into `~/.ssh`. It is a
+  placeholder key (its comment is still `your_email@example.com`, matching the
+  stub in `userdata.authorizedKeys`) and does not correspond to any private key
+  on this host, so linking it would clobber a working public key.
 
 ---
 ## ⚠️ OUTDATED CONTENT BELOW

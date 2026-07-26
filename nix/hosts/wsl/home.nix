@@ -12,6 +12,15 @@
     inputs = inputs;
     project_root = project_root;
   };
+  # Ubuntu's WSL image generates only the C/C.UTF-8/POSIX locales. home-manager's
+  # CLI panics parsing `C.UTF-8` as a language tag (ParserError(InvalidLanguage)),
+  # so `switch` exits 101 even after activation has succeeded. Ship a real UTF-8
+  # locale rather than pointing LANG at one glibc cannot load. Only en_US is
+  # built; the full glibcLocales is ~200MB.
+  locales = pkgs.glibcLocales.override {
+    allLocales = false;
+    locales = ["en_US.UTF-8/UTF-8"];
+  };
 in {
   # WSL runs standalone home-manager on top of an ordinary Ubuntu rootfs, so
   # there is no system module layer here: no NixOS/nix-darwin configuration, and
@@ -33,11 +42,13 @@ in {
   home.username = userdata.username;
   home.homeDirectory = "/home/${userdata.username}";
 
-  home.packages = package_config.wsl_packages;
+  home.packages = package_config.wsl_packages ++ [locales];
   home.stateVersion = "23.11";
 
   home.sessionVariables = {
     EDITOR = "nvim";
+    LOCALE_ARCHIVE = "${locales}/lib/locale/locale-archive";
+    LANG = "en_US.UTF-8";
   };
 
   home.file = {
@@ -47,7 +58,10 @@ in {
     ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/tmuxinator".source = "${project_root}/utilities/tmuxinator";
-    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
+    # NOTE: utilities/ssh/id_ed25519.pub is deliberately NOT linked here. It is a
+    # placeholder (comment: your_email@example.com) and does not match this
+    # host's ~/.ssh/id_ed25519, so linking it would replace a working public key
+    # with one whose private half is not present.
     ".config/nvim".source =
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
