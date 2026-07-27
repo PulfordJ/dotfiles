@@ -70,6 +70,10 @@ in {
     # Claude Code reads its global instructions from $CLAUDE_CONFIG_DIR/CLAUDE.md,
     # defaulting to ~/.claude - not ~/.config/claude as the desktop hosts assume.
     ".claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
+    # Kimi Code reads its global instructions from ~/.agents/AGENTS.md (the
+    # generic cross-tool location; ~/.kimi-code/AGENTS.md is the Kimi-specific
+    # one). Same source file as Claude Code so they stay in sync.
+    ".agents/AGENTS.md".source = "${project_root}/utilities/claude/CLAUDE.md";
     ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/tmuxinator".source = "${project_root}/utilities/tmuxinator";
