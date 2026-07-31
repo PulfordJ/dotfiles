@@ -30,7 +30,8 @@ in {
   #   - hyprland/waybar/mako/tofi/hyprlock, firefox, xremap, gammastep, stylix
   #     and the gtk/qt/xdg-portal wiring: there is no display server.
   #   - ssh.nix: it points identityFile at /run/agenix/secret1, which only the
-  #     system-level agenix module creates.
+  #     system-level agenix module creates. The agent-forwarding setup it
+  #     provides is reproduced against this host's own keys further down.
   #   - vscode.nix: VS Code runs on the Windows side and reaches in over
   #     vscode-server, so the Linux-side package would be unused.
   imports = [
@@ -118,6 +119,65 @@ in {
   };
   programs.zoxide.enable = true;
 
+  # SSH agent forwarding, so a session on media-center-pi can push that host's
+  # dotfiles to GitHub with the key that never leaves this machine.
+  #
+  # macOS gets an agent for free from launchd, which is why the darwin build
+  # only had to set ForwardAgent. WSL starts with no agent at all, so there was
+  # nothing to forward: the three pieces below are the agent, the key inside it,
+  # and the forwarding itself. systemd's user instance is available to run the
+  # agent because /etc/wsl.conf sets systemd=true.
+  services.ssh-agent.enable = true;
+
+  # The agent starts empty. Forwarding only exposes keys that are already
+  # loaded, and nothing on this host would otherwise load one until an outbound
+  # ssh happened to use it - which is both too late and the wrong key. Seed it
+  # at login instead. ~/.ssh/id_ed25519 is the key GitHub knows (listed there as
+  # "GitHub CLI") and it has no passphrase, so this needs no prompt.
+  systemd.user.services.ssh-add-keys = {
+    Unit = {
+      Description = "Load SSH keys into the agent";
+      After = ["ssh-agent.service"];
+      Requires = ["ssh-agent.service"];
+    };
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Environment = "SSH_AUTH_SOCK=%t/${config.services.ssh-agent.socket}";
+      ExecStart = "${lib.getExe' pkgs.openssh "ssh-add"} %h/.ssh/id_ed25519";
+    };
+    Install.WantedBy = ["default.target"];
+  };
+
+  programs.ssh = {
+    enable = true;
+    # Upstream's implicit `Host *` block is deprecated and warns; everything it
+    # would set is either a default or spelled out below.
+    enableDefaultConfig = false;
+    matchBlocks = {
+      # ForwardAgent is deliberately scoped to this one host rather than "*":
+      # anything you forward the agent to can use these keys, against any
+      # server, for as long as the connection is open.
+      "media-center-pi" = {
+        user = "pi";
+        forwardAgent = true;
+        identityFile = "~/.ssh/id_ed25519";
+        identitiesOnly = true;
+      };
+      "mum-osmc" = {
+        user = "osmc";
+        hostname = "mum-osmc";
+        identityFile = "~/.ssh/id_ed25519_mum-osmc";
+        identitiesOnly = true;
+      };
+      # Carried over from the hand-written config this replaces. The module
+      # always emits "*" last, so the blocks above win.
+      "*" = {
+        identityFile = "~/.ssh/id_ed25519_mum-osmc";
+      };
+    };
+  };
+
   # WSL sessions frequently land in plain bash (the Ubuntu default, and what
   # tools like vscode-server spawn), while the shared configs only wire atuin
   # into zsh. Without this, every bash command evaporates on exit since Ubuntu's
@@ -131,6 +191,12 @@ in {
       # Ephemeral kimi-code install location; guard it so shells don't break
       # after /tmp is cleared.
       [ -d /tmp/kimi-clean/.kimi-code/bin ] && export PATH="/tmp/kimi-clean/.kimi-code/bin:$PATH"
+
+      # services.ssh-agent exports SSH_AUTH_SOCK through hm-session-vars.sh,
+      # which .zshenv sources unconditionally but bash only reaches via
+      # .profile - i.e. login shells. A non-login bash (vscode-server's
+      # terminals, `bash -c`) would otherwise see no agent at all.
+      [ -z "$SSH_AUTH_SOCK" ] && [ -n "$XDG_RUNTIME_DIR" ] && export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/${config.services.ssh-agent.socket}"
     '';
   };
 
