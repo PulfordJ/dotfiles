@@ -117,4 +117,24 @@ in {
     enable = true;
   };
   programs.zoxide.enable = true;
+
+  # WSL sessions frequently land in plain bash (the Ubuntu default, and what
+  # tools like vscode-server spawn), while the shared configs only wire atuin
+  # into zsh. Without this, every bash command evaporates on exit since Ubuntu's
+  # stock .bashrc was never even writing ~/.bash_history. Letting home-manager
+  # manage bash gives atuin a .bashrc to hook into; the settings themselves
+  # (fuzzy search, compact UI) are inherited from configs/zsh.nix.
+  programs.bash = {
+    enable = true;
+    historyControl = ["ignoredups" "ignorespace"];
+    initExtra = ''
+      # Ephemeral kimi-code install location; guard it so shells don't break
+      # after /tmp is cleared.
+      [ -d /tmp/kimi-clean/.kimi-code/bin ] && export PATH="/tmp/kimi-clean/.kimi-code/bin:$PATH"
+    '';
+  };
+
+  # atuin captures bash history via bash-preexec (pulled in by the module).
+  # enable/enableZshIntegration/settings come from configs/zsh.nix.
+  programs.atuin.enableBashIntegration = true;
 }
