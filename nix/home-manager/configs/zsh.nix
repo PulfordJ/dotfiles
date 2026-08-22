@@ -2,6 +2,7 @@
   pkgs,
   lib,
   project_root,
+  userdata,
   ...
 }: let
   scripts = import "${project_root}/nix/home-manager/scripts.nix" {pkgs = pkgs;};
@@ -42,15 +43,19 @@ in {
       speedtest = "speedtesthelper";
     };
 
-    sessionVariables = {
-      ZVM_INIT_MODE = "sourcing";
-      JAVA_HOME = "${pkgs.jdk21}";
-    } // lib.optionalAttrs pkgs.stdenv.isLinux {
-      LD_LIBRARY_PATH = lib.makeLibraryPath [
-        pkgs.cudaPackages.cudatoolkit
-        pkgs.linuxPackages.nvidia_x11
-      ];
-    };
+    sessionVariables =
+      {
+        ZVM_INIT_MODE = "sourcing";
+        JAVA_HOME = "${pkgs.jdk21}";
+      }
+      # Pulls in multi-GB CUDA closures, so it is opt-out for hosts without an
+      # NVIDIA GPU (WSL). Defaults to on to preserve existing host behaviour.
+      // lib.optionalAttrs (pkgs.stdenv.isLinux && (userdata.cudaSupport or true)) {
+        LD_LIBRARY_PATH = lib.makeLibraryPath [
+          pkgs.cudaPackages.cudatoolkit
+          pkgs.linuxPackages.nvidia_x11
+        ];
+      };
 
     initContent = ''
       ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
@@ -76,12 +81,15 @@ in {
       eval "$(starship init zsh)"
       alias vim=nvim
       # agent already started and running on /run/user/1000/ssh-agent with variables populated, we just may need to add the key
+      # The key is provisioned by the system-level agenix module, so it is absent
+      # on hosts managed by standalone home-manager (WSL); skip rather than let
+      # ssh-keygen complain on every shell startup.
       KEY="/run/agenix/secret1"
-      
-      # Check if the ssh-agent has the key already
-      if ssh-add -l | grep -q "$(ssh-keygen -lf "$KEY" | awk '{print $2}')"; then
-      else
-        ssh-add -q "$KEY"
+      if [ -r "$KEY" ]; then
+        # Check if the ssh-agent has the key already
+        if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -lf "$KEY" | awk '{print $2}')"; then
+          ssh-add -q "$KEY"
+        fi
       fi
     '';
   };
@@ -115,7 +123,7 @@ in {
       filter_mode_shell_up_key_binding = "directory";
 
       # Privacy settings
-      sync_address = "";  # Disable sync by default
+      sync_address = ""; # Disable sync by default
       auto_sync = false;
     };
   };

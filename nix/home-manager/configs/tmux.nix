@@ -56,6 +56,7 @@ in {
       set -g renumber-windows on
       set -sg repeat-time 600
       setw -g xterm-keys on
+      set -g extended-keys on
 
       # -- key-bind --
       # clear both screen and history
