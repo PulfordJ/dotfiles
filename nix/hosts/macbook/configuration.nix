@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   stateVersion,
   userdata,
   agenix,
@@ -11,7 +12,7 @@ in {
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [pkgs.mariadb pkgs.neovim pkgs.git pkgs.cocoapods pkgs.wireguard-tools pkgs.qrencode];
+  environment.systemPackages = [pkgs.mariadb pkgs.neovim pkgs.git pkgs.cocoapods pkgs.wireguard-tools pkgs.qrencode pkgs.rust-bin.stable.latest.default];
 
   # ...
 
@@ -22,7 +23,7 @@ in {
     # TODO: this some how break 'nix develop'
     # https://github.com/maralorn/nix-output-monitor/issues/166
     # https://github.com/maralorn/nix-output-monitor/issues/140
-    package = inputs.nix-monitored.packages.${pkgs.system}.default;
+    # package = inputs.nix-monitored.packages.${pkgs.system}.default;
     settings = {
       experimental-features = "nix-command flakes pipe-operators";
     };
@@ -30,6 +31,7 @@ in {
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   programs.zsh.enable = true; # default shell on catalina
+  programs.speedtest.enable = true;
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
@@ -176,7 +178,7 @@ in {
 
     # example of adding a tap
     # taps = ["homebrew/cask-fonts" "dimentium/autoraise" "nikitabobko/tap" "homebrew/services"];
-    taps = [];
+    taps = ["teamookla/speedtest"];
 
     # `brew install`
     # Example of installing a package and starting a service
@@ -189,7 +191,11 @@ in {
     #   }
     # ];
     brews = [
+      "teamookla/speedtest/speedtest"
+      "awscli"
       "displayplacer"
+      "gh"
+      "gemini-cli"
       "libmagic"
       "neovim"
       "ruby"
@@ -199,7 +205,9 @@ in {
     # `brew install --cask`
     casks = [
       "claude-code"
+      "comet"
       "disk-inventory-x"
+      "docker"
       "flutter"
       "iterm2"
       "1password"
@@ -208,7 +216,7 @@ in {
       "firefox"
       "brave-browser"
       "signal"
-      "messenger"
+      "moonlight"
       "obsidian"
       "discord"
       "kodi"
@@ -220,7 +228,6 @@ in {
       "android-studio"
       "android-platform-tools"
       "caffeine"
-      "expressvpn"
       "google-chrome"
       "libreoffice"
       "grandperspective"
@@ -231,11 +238,9 @@ in {
       "r"
       "rstudio"
       "steam"
-      "telegram"
       "utm"
       "visual-studio-code"
       "vlc"
-      "whisky"
     ];
     # mas install https://www.moncefbelyamani.com/how-to-install-xcode-with-homebrew/
     masApps = {
@@ -269,6 +274,14 @@ in {
   # If you configure some of your MacOS preferences via nix-darwin and then activate your system,
   # you’ll find that some of them don’t take effect until you logout or restart your system.
   # This option fixes that
+  # Tap and trust third-party taps before brew bundle runs.
+  # brew trust requires the tap directory to already exist on disk, so we
+  # explicitly tap first, then trust, prepended ahead of the brew bundle call.
+  system.activationScripts.homebrew.text = lib.mkBefore ''
+    /opt/homebrew/bin/brew tap teamookla/speedtest 2>/dev/null || true
+    /opt/homebrew/bin/brew trust teamookla/speedtest 2>/dev/null || true
+  '';
+
   system.activationScripts.postActivation.text = ''
     # Following line should allow us to avoid a logout/login cycle
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u

@@ -4,10 +4,29 @@
   inputs,
   ...
 }: let
-  theme-switch = pkgs.writeShellApplication {
-    name = "theme-switch";
-    text = builtins.readFile "${project_root}/scripts/theme-switch.sh";
-    runtimeInputs = [pkgs.gawk pkgs.gnugrep pkgs.systemdMinimal];
+  # Android SDK with proper license acceptance
+  androidSdk = pkgs.androidenv.composeAndroidPackages {
+    cmdLineToolsVersion = "19.0";
+    platformToolsVersion = "35.0.2";
+    buildToolsVersions = ["35.0.0" "34.0.0"];
+    includeEmulator = false;
+    platformVersions = ["34" "35" "36"];
+    includeSources = false;
+    includeSystemImages = false;
+    includeNDK = true;
+    ndkVersions = ["27.0.12077973"];
+    cmakeVersions = ["3.22.1"];
+    # Accept all common licenses
+    extraLicenses = [
+      "android-googletv-license"
+      "android-sdk-arm-dbt-license"
+      "android-sdk-preview-license"
+      "google-gdk-license"
+      "intel-android-extra-license"
+      "intel-android-sysimage-license"
+      "mips-android-sysimage-license"
+      "android-googlexr-license"
+    ];
   };
   yazi-wrapper = pkgs.writeShellApplication {
     name = "yazi-wrapper";
@@ -53,13 +72,16 @@
       sh -c "$command"
     '';
   };
+
   xdg-terminal-exec = pkgs.writers.writeBashBin "xdg-terminal-exec" ''
     #!/bin/sh
     test -n "$*" && args=("$@")
     exec kitty -d "$PWD" -e "''${args[@]}"
   '';
-in {
-  default_packages = [
+  # Headless CLI tooling shared by every host. Deliberately free of GUI apps and
+  # multi-GB SDKs so lightweight hosts (WSL) can consume it without pulling in a
+  # desktop or a LaTeX distribution.
+  core_packages = [
     # Utils
     pkgs.bat # A cat clone with syntax highlighting and Git integration
     pkgs.eza # A tiny file explorer
@@ -78,21 +100,63 @@ in {
     pkgs.starship
     pkgs.nix-output-monitor
     pkgs.neovim
-    pkgs.vscode
-  ];
+    pkgs.gemini-cli
+    pkgs.atuin # Magical shell history with sync and search
+    pkgs.direnv # Automatic environment loading for project directories
 
-  linux_packages = [
+    # Rust development tools
+    pkgs.stylua
+    pkgs.clang-tools
+    pkgs.shfmt
+    pkgs.black
+    pkgs.alejandra
+    pkgs.gcc
+    pkgs.postgresql # PostgreSQL client (psql)
+    pkgs.jdk21
+  ];
+in {
+  inherit core_packages;
+
+  default_packages =
+    core_packages
+    ++ [
+      pkgs.anki-bin # Spaced repetition flashcard program
+      pkgs.texliveFull # Full LaTeX distribution
+      androidSdk.androidsdk
+    ];
+
+  # WSL has no display server and no system-level module layer, so it takes the
+  # headless core plus a couple of terminal git helpers that live in
+  # `linux_packages` for the desktop hosts.
+  wsl_packages =
+    core_packages
+    ++ [
+      pkgs.lazygit # A simple terminal UI for git commands
+      pkgs.git-lfs
+    ];
+
+  linux_packages = let
+    theme-switch = pkgs.writeShellApplication {
+      name = "theme-switch";
+      text = builtins.readFile "${project_root}/scripts/theme-switch.sh";
+      runtimeInputs = [pkgs.gawk pkgs.gnugrep pkgs.systemdMinimal pkgs.darkman pkgs.theme-manager];
+    };
+  in [
     theme-switch
     yazi-wrapper
     xdg-terminal-exec
     pkgs.blender # A 3D modeling and animation software
-    pkgs.prismlauncher
+
+    # CUDA development tools
+    pkgs.nvitop # GPU monitoring tool
+    # TODO: Java 8 is not working
+    # pkgs.prismlauncher
     pkgs.glib
-    pkgs.caprine
+    pkgs.master.caprine
     pkgs.trash-cli
 
     # Hyprland
-    pkgs.waybar # A Wayland bar for Sway and Hyprland
+    pkgs.waybar # A Wayland bar for Hyprland
     pkgs.bun # to run ags
     pkgs.hyprpaper # A wallpaper utility for Hyprland
     pkgs.wl-clipboard # A command-line copy/paste tool for Wayland
@@ -113,7 +177,6 @@ in {
     pkgs.inotify-tools # A set of command-line utilities for monitoring file system events
     pkgs.libnotify # A library for sending desktop notifications
     pkgs.ddcutil # A monitor control tool
-    pkgs.quickemu # A quick emu launcher
 
     # Shell
     pkgs.obs-studio # A free and open-source video recording and live streaming software
@@ -124,7 +187,6 @@ in {
     pkgs.vlc # A multimedia player
 
     # Text editor
-    pkgs.onlyoffice-bin # An office suite
     pkgs.pdfgrep # A tool to search text in PDF files
 
     pkgs.adw-gtk3
@@ -141,7 +203,6 @@ in {
     pkgs.cantarell-fonts # Cantarell fonts
     pkgs.noto-fonts-color-emoji # Noto Color Emoji fonts
     pkgs.iosevka # Iosevka monospace fonts
-    inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd
     inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd
     inputs.apple-fonts.packages.${pkgs.system}.ny-nerd
 
@@ -164,11 +225,12 @@ in {
     pkgs.hwinfo # A hardware information tool
     pkgs.imagemagick # A suite of image manipulation tools
     pkgs.yt-dlp # A command-line tool to download videos from YouTube and other sites
-
-    # build tools
-    pkgs.buildifier
   ];
 
   mac_packages = [
+    pkgs.teleport # Teleport tsh client for secure access to SSH servers and clusters
   ];
+
+  # Export Android SDK for use in other modules
+  inherit androidSdk;
 }

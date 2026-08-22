@@ -2,16 +2,22 @@
   description = "cunbidun's dotfiles";
 
   inputs = {
+    master.url = "github:nixos/nixpkgs?ref=master";
     nixpkgs-unstable = {url = "github:nixos/nixpkgs/nixos-unstable";};
+    nixpkgs-stable = {url = "github:nixos/nixpkgs/nixos-25.05";};
+
     nix-darwin = {url = "github:LnL7/nix-darwin";};
     home-manager = {url = "github:nix-community/home-manager";};
     apple-fonts = {url = "github:Lyndeno/apple-fonts.nix";};
+    nix-speedtest-module = {url = "github:PulfordJ/nix-speedtest-module";};
+    claude-code.url = "github:sadjow/claude-code-nix";
 
+    disko.url = "github:nix-community/disko";
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
     # +----------+
     # | Hyprland |
     # +----------+
     hyprland = {url = "github:hyprwm/Hyprland/?submodules=1";};
-    hypridle = {url = "github:hyprwm/hypridle";};
     pyprland = {url = "github:hyprland-community/pyprland";};
     hyprland-contrib = {url = "github:hyprwm/contrib";};
     hyprcursor-phinger = {url = "github:jappie3/hyprcursor-phinger";};
@@ -20,7 +26,7 @@
       inputs.hyprland.follows = "hyprland";
     };
     hyprfocus = {
-      url = "github:cunbidun/hyprfocus";
+      url = "github:daxisunder/hyprfocus";
       inputs.hyprland.follows = "hyprland";
     };
     Hyprspace = {
@@ -33,10 +39,17 @@
     # +--------+
     yazi = {url = "github:sxyazi/yazi/v25.4.8";};
     stylix = {url = "github:nix-community/stylix";};
-    spicetify-nix = {url = "github:Gerg-L/spicetify-nix";};
-
-    mac-app-util.url = "github:hraban/mac-app-util";
+    vicinae = {
+      url = "https://github.com/vicinaehq/vicinae/releases/download/v0.2.1/vicinae-linux-x86_64-v0.2.1.tar.gz";
+      flake = false;
+    };
     nur.url = "github:nix-community/nur";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+
+    nix-monitored = {
+      url = "github:ners/nix-monitored";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     # +----------------+
     # | Neovim plugins |
@@ -53,10 +66,9 @@
       url = "github:fang2hou/blink-copilot";
       flake = false;
     };
-    nix-monitored = {
-      url = "github:ners/nix-monitored";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+
+    # +-- MacOS specific --+
+    mac-app-util.url = "github:hraban/mac-app-util";
   };
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.agenix.url = "github:ryantm/agenix";
@@ -74,30 +86,32 @@
     agenix,
     agenix-rekey,
     flake-utils,
+    claude-code,
+    disko,
     ...
   }: let
     project_root = ./.;
     userdata = import ./userdata.nix;
+    kawaiiuserdata = import ./kawaiiuserdata.nix;
+    rossuserdata = import ./rossuserdata.nix;
     mkPkgs = system:
       import nixpkgs-unstable {
         inherit system;
-        overlays = [
-          inputs.nur.overlays.default
-          (import "${project_root}/nix/overlays/firefox-addons.nix")
-          (import "${project_root}/nix/overlays/vim-plugins.nix" inputs)
-          agenix-rekey.overlays.default
-        ];
-        config.allowUnfree = true;
+        overlays = import "${project_root}/nix/overlays" inputs;
+        config = {
+          allowUnfree = true;
+          android_sdk.accept_license = true;
+        };
       };
 
-    mkHomeManagerModule = configPath: {
+    mkHomeManagerModule = configPath: userdata: {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
         users.${userdata.username} = import configPath;
         extraSpecialArgs = {
           inherit project_root inputs;
-          userdata = userdata;
+          inherit userdata;
         };
       };
     };
@@ -110,13 +124,15 @@
         pkgs = mkPkgs system;
         specialArgs = {
           inherit inputs userdata;
+          inherit (inputs) nix-speedtest-module;
           stateVersion = stateVersionNum;
         };
         modules = [
           inputs.mac-app-util.darwinModules.default
           ./nix/hosts/macbook/configuration.nix
+          inputs.nix-speedtest-module.darwinModules.default
           home-manager.darwinModules.home-manager
-          (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix")
+          (mkHomeManagerModule "${project_root}/nix/hosts/macbook/home.nix" userdata)
           agenix.darwinModules.default
           #agenix-rekey.nixosModules.default
           ./secrets/macsecrets.nix
@@ -127,6 +143,7 @@
       system,
       hostPath,
       homePath,
+      diskoPath,
     }:
       nixpkgs-unstable.lib.nixosSystem {
         pkgs = mkPkgs system;
@@ -134,15 +151,45 @@
           inherit inputs userdata;
         };
         modules = [
+          inputs.disko.nixosModules.disko
+          diskoPath
           hostPath
           home-manager.nixosModules.home-manager
-          (mkHomeManagerModule homePath)
+          (mkHomeManagerModule homePath userdata)
           agenix.nixosModules.default
           agenix-rekey.nixosModules.default
           ./secrets/secrets.nix
         ];
       };
   in {
+    # for running commands like `nix eval .#inputs.hyprland.packages.x86_64-linux.hyprland`
+    inputs = inputs;
+
+    # Home Manager modules
+    homeManagerModules = {
+      theme-manager = import "${project_root}/nix/theme-manager/hm-module.nix";
+    };
+
+    # ---------------------------------#
+    #  standalone home-manager configs  #
+    # ---------------------------------#
+    # For hosts where Nix sits on top of a foreign distro (WSL on Ubuntu) and
+    # there is therefore no NixOS/nix-darwin layer to hang home-manager off.
+    #
+    #   home-manager switch --flake ~/dotfiles#john@wsl
+    homeConfigurations = {
+      "${userdata.username}@wsl" = home-manager.lib.homeManagerConfiguration {
+        pkgs = mkPkgs "x86_64-linux";
+        extraSpecialArgs = {
+          inherit project_root inputs;
+          # userdata.nix is shared with the GPU desktop, so the CUDA opt-out is
+          # applied here rather than in the file itself.
+          userdata = userdata // {cudaSupport = false;};
+        };
+        modules = [./nix/hosts/wsl/home.nix];
+      };
+    };
+
     # -----------------------#
     # macbook configurations #
     # -----------------------#
@@ -151,20 +198,87 @@
         system = "aarch64-darwin";
         stateVersionNum = 4;
       };
-      "macbook-intel" = mkDarwinSystem {
-        system = "x86_64-darwin";
-        stateVersionNum = 5;
-      };
     };
 
     # -----------------------#
     #  nixos configurations  #
     # -----------------------#
     nixosConfigurations = {
-      nixos = mkNixosHost {
-        system = "x86_64-linux";
-        hostPath = ./nix/hosts/nixos/configuration.nix;
-        homePath = "${project_root}/nix/hosts/nixos/home.nix";
+      nixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs userdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/nixos/hardware-configuration.nix
+          ./nix/hosts/nixos/yubikey.nix
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" userdata)
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
+      };
+      # Raspberry Pi 5 system (accessible as .#rpi5)
+      rpi5 = inputs.nixos-raspberrypi.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          nixos-raspberrypi = inputs.nixos-raspberrypi;
+          userdata = userdata;
+        };
+        trustCaches = true;
+        modules = [
+          ({modulesPath, ...}: {
+            imports = with inputs.nixos-raspberrypi.nixosModules; [
+              raspberry-pi-5.base
+            ];
+            disabledModules = [
+              # disable the sd-image module that nixos-images uses
+              (modulesPath + "/installer/sd-card/sd-image-aarch64-installer.nix")
+            ];
+          })
+          inputs.disko.nixosModules.disko
+          ./nix/hosts/rpi/disko.nix
+          ./nix/hosts/rpi/configuration.nix
+          ./cachix.nix
+          ./cuda-maintainers.nix
+        ];
+      };
+      kawaiinixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+          userdata = kawaiiuserdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/kawaiinixos/hardware-configuration.nix
+          #./nix/hosts/kawaiinixos/disko.nix
+          disko.nixosModules.disko
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" kawaiiuserdata)
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
+      };
+      rossnixos = nixpkgs-unstable.lib.nixosSystem {
+        pkgs = mkPkgs "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+          userdata = rossuserdata;
+        };
+        modules = [
+          ./nix/hosts/nixos/configuration.nix
+          ./nix/hosts/rossnixos/hardware-configuration.nix
+          disko.nixosModules.disko
+          home-manager.nixosModules.home-manager
+          (mkHomeManagerModule "${project_root}/nix/hosts/nixos/home.nix" rossuserdata)
+          agenix.nixosModules.default
+          agenix-rekey.nixosModules.default
+          ./secrets/secrets.nix
+        ];
       };
     };
 

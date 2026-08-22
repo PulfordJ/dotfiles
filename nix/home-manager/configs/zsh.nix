@@ -1,8 +1,12 @@
 {
   pkgs,
   lib,
+  project_root,
+  userdata,
   ...
-}: {
+}: let
+  scripts = import "${project_root}/nix/home-manager/scripts.nix" {pkgs = pkgs;};
+in {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -36,11 +40,22 @@
       ls = "exa -la";
       cat = "bat";
       tree = "tree -a";
+      speedtest = "speedtesthelper";
     };
 
-    sessionVariables = {
-      ZVM_INIT_MODE = "sourcing";
-    };
+    sessionVariables =
+      {
+        ZVM_INIT_MODE = "sourcing";
+        JAVA_HOME = "${pkgs.jdk21}";
+      }
+      # Pulls in multi-GB CUDA closures, so it is opt-out for hosts without an
+      # NVIDIA GPU (WSL). Defaults to on to preserve existing host behaviour.
+      // lib.optionalAttrs (pkgs.stdenv.isLinux && (userdata.cudaSupport or true)) {
+        LD_LIBRARY_PATH = lib.makeLibraryPath [
+          pkgs.cudaPackages.cudatoolkit
+          pkgs.linuxPackages.nvidia_x11
+        ];
+      };
 
     initContent = ''
       ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
@@ -51,32 +66,6 @@
       if [ ! -d "/etc/nixos" ]; then
         export CONDA_CHANGEPS1=false
         export PATH=/etc/profiles/per-user/$USER/bin:$PATH
-
-        if [ "$(uname)" = "Darwin" ]; then
-          export CONDA_ROOT="/Users/$USER/miniconda3"
-        else
-          export CONDA_ROOT="/home/$USER/miniconda3"
-        fi
-
-        # if it's not NixOS then source conda env
-        # >>> conda initialize >>>
-        # !! Contents within this block are managed by 'conda init' !!
-        __conda_setup="$($CONDA_ROOT/bin/conda 'shell.zsh' 'hook' 2>/dev/null)"
-        if [ $? -eq 0 ]; then
-          eval "$__conda_setup"
-        else
-          if [ -f "$CONDA_ROOT/etc/profile.d/conda.sh" ]; then
-            . "$CONDA_ROOT/etc/profile.d/conda.sh"
-          else
-            export PATH="$CONDA_ROOT/bin:$PATH"
-          fi
-        fi
-        unset __conda_setup
-        # <<< conda initialize <<<
-
-        export NVM_DIR="$HOME/.config/nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
       fi
 
       # Use vim keys in tab complete menu:
@@ -92,12 +81,15 @@
       eval "$(starship init zsh)"
       alias vim=nvim
       # agent already started and running on /run/user/1000/ssh-agent with variables populated, we just may need to add the key
+      # The key is provisioned by the system-level agenix module, so it is absent
+      # on hosts managed by standalone home-manager (WSL); skip rather than let
+      # ssh-keygen complain on every shell startup.
       KEY="/run/agenix/secret1"
-      
-      # Check if the ssh-agent has the key already
-      if ssh-add -l | grep -q "$(ssh-keygen -lf "$KEY" | awk '{print $2}')"; then
-      else
-        ssh-add -q "$KEY"
+      if [ -r "$KEY" ]; then
+        # Check if the ssh-agent has the key already
+        if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -lf "$KEY" | awk '{print $2}')"; then
+          ssh-add -q "$KEY"
+        fi
       fi
     '';
   };
@@ -116,5 +108,29 @@
     colors = {
       bg = lib.mkForce "";
     };
+  };
+
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      # UI settings
+      style = "compact";
+      show_preview = true;
+
+      # Search settings
+      search_mode = "fuzzy";
+      filter_mode_shell_up_key_binding = "directory";
+
+      # Privacy settings
+      sync_address = ""; # Disable sync by default
+      auto_sync = false;
+    };
+  };
+
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
   };
 }

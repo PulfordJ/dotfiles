@@ -1,5 +1,86 @@
 # John Pulford's dotfiles repo
 
+
+### Quick Update Commands
+To update the system configuration, use one of these commands:
+
+```bash
+# For NixOS systems (can run as root initially, but long-term should run as user)
+sudo nixos-rebuild switch --flake .#nixos --cores 0
+
+# For specific host configurations
+sudo nixos-rebuild switch --flake .#kawaiinixos --cores 0
+sudo nixos-rebuild switch --flake .#rossnixos --cores 0
+```
+
+### Important Notes
+- **Initial Setup**: You can run these commands as root during initial setup
+- **Long-term Usage**: Should be run as the user specified in the relevant userdata file from their home directory (`~/dotfiles`)
+- **Why User Directory**: Some configuration folders expect to be writable by the user, so running from the user's home directory ensures configs work properly
+
+### WSL (standalone home-manager)
+
+WSL runs Nix on top of an ordinary Ubuntu rootfs, so there is no NixOS or
+nix-darwin layer. The `john@wsl` output is a standalone home-manager
+configuration instead (`nix/hosts/wsl/home.nix`): user-level only, no `sudo`.
+
+```bash
+# Bootstrap (home-manager is not installed yet).
+# -b backup renames any pre-existing file it would overwrite to <name>.backup
+nix run github:nix-community/home-manager -- switch -b backup --flake ~/dotfiles#john@wsl
+
+# Subsequent updates (home-manager installs itself into the profile)
+home-manager switch --flake ~/dotfiles#john@wsl
+```
+
+Three manual steps Nix cannot do for you:
+
+1. **Generate the `en_US.UTF-8` locale on the Ubuntu side.** Ubuntu's WSL image
+   ships only `C`/`C.UTF-8`/`POSIX`. The host config sets `LANG=en_US.UTF-8`
+   (home-manager's CLI panics parsing `C.UTF-8` as a language tag and exits 101,
+   *after* activation has already succeeded) and provides a Nix
+   `glibcLocales` via `LOCALE_ARCHIVE` for Nix-built binaries. Ubuntu's own glibc
+   cannot read that archive — different glibc version — so Debian tooling such as
+   `perl` warns until the locale also exists system-side:
+   ```bash
+   sudo locale-gen en_US.UTF-8
+   ```
+2. **Retire `~/.gitconfig`.** home-manager writes `~/.config/git/config`, and git
+   reads *both*, with `~/.gitconfig` taking precedence — so an existing
+   `~/.gitconfig` silently overrides the managed one. Its contents have been
+   folded into `nix/hosts/wsl/home.nix`, so remove it once you have switched:
+   `mv ~/.gitconfig ~/.gitconfig.pre-hm`
+3. **Set zsh as the login shell.** Standalone home-manager cannot call `chsh`.
+   Use the `~/.nix-profile` path, not the `/nix/store` one, so it survives
+   rebuilds:
+   ```bash
+   echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
+   chsh -s "$HOME/.nix-profile/bin/zsh"
+   ```
+   Nix's zsh does not read `/etc/profile`, so `/etc/profile.d/nix.sh` — which is
+   what puts the Nix profiles on `PATH` for bash — never runs in a login zsh.
+   Without help, a login shell has neither `nix` nor `home-manager` on `PATH`.
+   `home.sessionPath` in the host config covers this; see the comment there for
+   the ordering rationale.
+
+Notes specific to this host:
+- Uses `wsl_packages` (headless core) rather than `default_packages`, which drops
+  `texliveFull`, the Android SDK and `anki-bin`.
+- `cudaSupport = false` is applied at the flake call site, keeping the CUDA
+  `LD_LIBRARY_PATH` (and its multi-GB closure) out of the WSL profile while
+  leaving the GPU desktop hosts unchanged.
+- Claude Code is left to its own self-updating native installer; adding
+  `pkgs.claude-code` here would shadow it and pin the version.
+- `utilities/ssh/id_ed25519.pub` is **not** linked into `~/.ssh`. It is a
+  placeholder key (its comment is still `your_email@example.com`, matching the
+  stub in `userdata.authorizedKeys`) and does not correspond to any private key
+  on this host, so linking it would clobber a working public key.
+
+---
+## ⚠️ OUTDATED CONTENT BELOW
+
+**The information below is outdated. For current usage, see the updated instructions:**
+
 ## Screenshot
 
 ![alt text](./images/dwm-desktop.png "Screenshot")

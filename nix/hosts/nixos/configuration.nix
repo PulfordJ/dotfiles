@@ -10,10 +10,9 @@
   ...
 }: {
   imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
     ./uxplay.nix
   ];
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
   # devenv wants users to be in the trusted-users list so that they can access the /nix/store
 
@@ -26,25 +25,46 @@
       automatic = false;
       options = "--delete-older-than 7d";
     };
-    settings.trusted-users = ["root" "@wheel"];
-    settings = {
+    distributedBuilds = true;
+    buildMachines = [
+      {
+        hostName = "rpi-build"; # SSH config alias defined below
+        sshUser = "root"; # use your regular user on the Pi
+        system = "aarch64-linux";
+        protocol = "ssh";
+        maxJobs = 4; # adjust to Pi core count
+        speedFactor = 1;
+        supportedFeatures = ["big-parallel"];
+        mandatoryFeatures = [];
+      }
+    ];
+    settings = let
       substituters = [
+        "https://cache.nixos.org"
+        "https://nixos-raspberrypi.cachix.org"
         "https://hyprland.cachix.org"
         "https://yazi.cachix.org"
+        "https://nix-community.cachix.org"
+        "https://cuda-maintainers.cachix.org"
       ];
-      trusted-substituters = [
-        "https://hyprland.cachix.org"
-        "https://yazi.cachix.org"
-      ];
+    in {
+      builders-use-substitutes = true;
+      trusted-users = ["root" "@wheel"]; # removed unused 'builder'
+      substituters = substituters;
+      trusted-substituters = substituters;
       trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
         "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
       ];
     };
   };
 
   # Bootloader.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.master.linuxPackages_latest; # Use the LTS kernel for better stability.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelModules = ["uinput" "i2c-dev"];
@@ -82,13 +102,43 @@
     variant = "";
   };
 
+  # turn on for ollama
+  # services.ollama = {
+  #   package = pkgs.master.ollama;
+  #   enable = true;
+  #   acceleration = "rocm";
+  #   loadModels = [
+  #     "gpt-oss:20b"
+  #   ];
+  #   environmentVariables = {
+  #     HSA_OVERRIDE_GFX_VERSION = "10.3.0";
+  #     OLLAMA_CONTEXT_LENGTH = "16384";
+  #   };
+  # };
+  # services.open-webui = {
+  #   package = pkgs.master.open-webui;
+  #   enable = true;
+  #   host = "0.0.0.0";
+  #   port = 8000;
+  #   environment = {
+  #     WEBUI_AUTH = "False";
+  #     ENABLE_SIGNUP = "False";
+  #     ANONYMIZED_TELEMETRY = "False";
+  #     BYPASS_MODEL_ACCESS_CONTROL = "True";
+  #     DO_NOT_TRACK = "True";
+  #     SCARF_NO_ANALYTICS = "True";
+  #     FRONTEND_BUILD_DIR = "${config.services.open-webui.stateDir}/build";
+  #     DATA_DIR = "${config.services.open-webui.stateDir}/data";
+  #     STATIC_DIR = "${config.services.open-webui.stateDir}/static";
+  #   };
+  # };
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.${userdata.username} = {
     isNormalUser = true;
     description = userdata.name;
     extraGroups = ["networkmanager" "wheel" "input" "i2c" "docker"];
     packages = with pkgs; [
-      swaylock-effects
       jdk17
       xdg-utils
       desktop-file-utils
@@ -98,6 +148,9 @@
       # Container
       podman-tui
       docker-compose
+      rocmPackages.rocm-smi
+      rocmPackages.rocminfo
+      rocmPackages.amdsmi
     ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = userdata.authorizedKeys or [];
@@ -116,6 +169,13 @@
     pciutils
     gparted
     xorg.xmodmap
+    claude-code
+    gemini-cli
+    texliveFull
+    rust-bin.stable.latest.default
+
+    # CUDA toolkit
+    cudaPackages.cudatoolkit
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -139,8 +199,12 @@
   programs.uwsm.enable = true;
   services.greetd = {
     enable = true;
-    settings.default_session.command = "${pkgs.greetd.tuigreet}/bin/tuigreet --asterisks --time --time-format '%A, %B %e, %Y -- %I:%M:%S %p' --cmd 'uwsm start default'";
+    settings.default_session.command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%A, %B %e, %Y -- %I:%M:%S %p' --cmd 'uwsm start default'";
   };
+
+  security.pam.services.greetd.enableGnomeKeyring = true;
+  security.pam.services.hyprlock.enableGnomeKeyring = true;
+  security.pam.services.hyprlock = {};
 
   # Enable the OpenSSH daemon.
   services.openssh = {
@@ -153,7 +217,6 @@
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"
     KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
   '';
-  security.pam.services.swaylock = {fprintAuth = false;};
   # rtkit is optional but recommended
   security.rtkit.enable = true;
   services.pipewire = {
@@ -181,6 +244,7 @@
     # require enabling PolKit integration on some desktop environments (e.g. Plasma).
     polkitPolicyOwners = ["${userdata.username}"];
   };
+  services.gnome.gnome-keyring.enable = true;
 
   environment.etc =
     {

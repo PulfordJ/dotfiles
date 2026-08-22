@@ -16,9 +16,17 @@ in {
     # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
     settings = {
       # See https://wiki.hyprland.org/Configuring/Monitors/
+      # Using specific monitor identifiers to ensure consistent positioning
+      # DP-4: Left monitor (ASUS ROG XG27AQ, Serial: R2LMQS015857)
+      # DP-5: Right monitor (ASUS ROG XG27AQ, Serial: M4LMQS000641)
       monitor = [
-        ",preferred,auto,1"
+        "DP-5,2560x1440@144,0x0,1"        # Right monitor -> Left position
+        "DP-4,2560x1440@144,2560x0,1"     # Left monitor -> Right position
       ];
+
+      ecosystem = {
+        no_update_news = true; # disable news popup on startup
+      };
 
       exec-once = [
         "wl-paste --type text --watch cliphist store"
@@ -43,7 +51,10 @@ in {
         groupbar = {
           font_family = "SFMono Nerd Font";
           font_size = 13;
-          height = 20;
+          indicator_height = 0;
+          height = 21;
+          rounding = 0;
+          gradients = true; # draw the full background instead of us unlerlying indicator
         };
       };
 
@@ -101,16 +112,9 @@ in {
         mfact = 0.5;
       };
 
-      gestures = {
-        workspace_swipe = true;
-        workspace_swipe_cancel_ratio = 0.1;
-        workspace_swipe_distance = 100;
-      };
-
       # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
       windowrulev2 = [
-        "nofocus,class:^(Conky)$"
-        "noinitialfocus,class:^(Conky)$"
+        # Game rules
         "noborder,class:^(dota2)$"
         "noblur,class:^(dota2)$"
         "noshadow,class:^(dota2)$"
@@ -119,13 +123,13 @@ in {
         "noborder,class:^(cs2)$"
         "noblur,class:^(cs2)$"
         "noshadow,class:^(cs2)$"
+
+        # Scratchpad rules
         "float,title:^(Spotify Premium)$"
         "float,class:^([Ss]ignal)$"
         "float,class:^(obsidian)$"
         "float,title:^(Scratchpad)$"
         "float,title:^(Open File)$"
-        "float,title:^(Bluetooth Devices)$"
-        "float,class:^(xdg-desktop-portal-gtk)$"
         "noanim,class:^(ueberzugpp.*)$"
         "noanim,title:^(.*ueberzugpp.*)$"
         "stayfocused,class:^(tofi.*)$"
@@ -144,11 +148,16 @@ in {
 
         # File
         "float,title:^(FileChooser)$"
+        "pin,title:^(FileChooser)$"
         "float,title:^(FileExplorer)$"
+        "float,class:^(xdg-desktop-portal-gtk)$"
+        "pin,class:^(xdg-desktop-portal-gtk)$"
 
         # Waybar popup
+        "float,title:^(Bluetooth Devices)$"
         "size 50% 50%,title:^(__waybar_popup)$"
         "float,title:^(__waybar_popup)$"
+        "pin,title:^(__waybar_popup)$"
 
         # WMs
         "float,class:^(spicy)$"
@@ -193,7 +202,7 @@ in {
 
     plugins = [
       inputs.hyprfocus.packages.${pkgs.system}.hyprfocus
-      inputs.Hyprspace.packages.${pkgs.system}.Hyprspace
+      # inputs.Hyprspace.packages.${pkgs.system}.Hyprspace
     ];
 
     extraConfig = ''
@@ -208,6 +217,8 @@ in {
       # Start Applications
       bind = $mainMod, Return, exec, $TERMINAL
       bind = $mainMod, P, exec, tofi-drun
+      bind = ALT, space, exec, vicinae
+      bind = CTRL, space, exec, vicinae
       bind = $mainMod, M, exec, ${lib.getExe scripts.hyprland-mode}
 
       # Clipboard
@@ -263,7 +274,7 @@ in {
       bind = $mainMod SHIFT, g, movetoworkspacesilent, 8
       bind = $mainMod SHIFT, 9, movetoworkspacesilent, 9
       bind = $mainMod SHIFT, M, exec, ${lib.getExe scripts.minimize-window}
-      bind = $mainMod, Tab, overview:toggle
+      # bind = $mainMod, Tab, overview:toggle
 
       # Group
       bind = $mainMod, t, togglegroup

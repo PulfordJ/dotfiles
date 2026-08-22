@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Search(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Bash"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "sonnet",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -d 'Claude Code needs input: Check terminal now' ntfy.sh/pulfordjclaudecode"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "xhigh",
+  "tui": "fullscreen",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": false,
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true,
+  "askBeforeRunningTool": false
+}

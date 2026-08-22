@@ -54,3 +54,6 @@ dist
 
 types
 node_modules
+
+# Plaintext age identity files - use secrets/*.age for encrypted versions
+pi-age-identity.txt

@@ -18,8 +18,10 @@ in {
     "${project_root}/nix/home-manager/configs/firefox.nix"
     "${project_root}/nix/home-manager/configs/nvim.nix"
     "${project_root}/nix/home-manager/configs/tmux.nix"
+    "${project_root}/nix/home-manager/configs/vscode.nix"
     "${project_root}/nix/home-manager/configs/stylix.nix"
     "${project_root}/nix/home-manager/configs/ssh.nix"
+    inputs.self.homeManagerModules.theme-manager
     inputs.stylix.homeModules.stylix
     inputs.mac-app-util.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
@@ -35,24 +37,24 @@ in {
   home.sessionVariables = {
     EDITOR = "nvim";
     TERMINAL = "iterm2";
+    ANDROID_SDK_ROOT = "${package_config.androidSdk.androidsdk}/libexec/android-sdk";
+    ANDROID_HOME = "${package_config.androidSdk.androidsdk}/libexec/android-sdk";
   };
 
   home.file = {
+    ".claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
+    ".claude/settings.json".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles-claude1/utilities/claude/settings.json";
+    ".claude/skills/sync-beastpc".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/sync-beastpc";
+    ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/iterm".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/iterm";
-    ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/tmux/.tmux.conf";
-
-    # ------- #
-    # vscode  #
-    # ------- #
-    ".local/bin/vscode_extension.py".source = "${project_root}/scripts/vscode_extension.py";
-    "Library/Application Support/Code/User/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/settings.json";
-    "Library/Application Support/Code/User/keybindings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/Code/keybindings.json";
-
     ".config/nvim".source =
       if userdata.hermeticNvimConfig
       then "${project_root}/utilities/nvim"
       else config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/nvim";
+    ".ssh/id_ed25519.pub".source = "${project_root}/utilities/ssh/id_ed25519.pub";
   };
 
   # Let Home Manager install and manage itself.
@@ -63,8 +65,12 @@ in {
     userEmail = userdata.email;
     extraConfig = {
       core = {editor = "nvim";};
+      # Clear osxkeychain (set by Nix git's system config) for CodeCommit and use
+      # only the AWS credential helper. Empty string resets the inherited helper list.
+      "credential \"https://git-codecommit.eu-west-1.amazonaws.com\"" = {
+        helper = ["" "!/opt/homebrew/bin/aws codecommit credential-helper $@"];
+        useHttpPath = true;
+      };
     };
   };
-
-
 }
