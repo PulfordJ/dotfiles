@@ -112,6 +112,7 @@ in {
     pkgs.alejandra
     pkgs.gcc
     pkgs.postgresql # PostgreSQL client (psql)
+    pkgs.jdk21
     androidSdk.androidsdk
   ];
 

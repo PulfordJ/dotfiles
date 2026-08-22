@@ -9,7 +9,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
@@ -25,9 +25,9 @@
   },
   "effortLevel": "xhigh",
   "tui": "fullscreen",
+  "remoteControlAtStartup": true,
   "agentPushNotifEnabled": false,
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": true,
-  "askBeforeRunningTool": false,
-  "remoteControlAtStartup": true
+  "askBeforeRunningTool": false
 }

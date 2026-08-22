@@ -55,7 +55,8 @@
       "Read(//Users/john/dotfiles/**)",
       "Read(//Users/john/.config/claude/CLAUDE.md)",
       "Read(//Users/john/.gemini/GEMINI.md)",
-      "Bash(brew search:*)"
+      "Bash(brew search:*)",
+      "Bash(git -C /Users/john/dotfiles-claude1 show HEAD:nix/home-manager/configs/vscode.nix)"
     ],
     "deny": [],
     "ask": [],

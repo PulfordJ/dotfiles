@@ -44,6 +44,7 @@ in {
 
     sessionVariables = {
       ZVM_INIT_MODE = "sourcing";
+      JAVA_HOME = "${pkgs.jdk21}";
     } // lib.optionalAttrs pkgs.stdenv.isLinux {
       LD_LIBRARY_PATH = lib.makeLibraryPath [
         pkgs.cudaPackages.cudatoolkit

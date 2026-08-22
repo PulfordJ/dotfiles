@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   stateVersion,
   userdata,
   agenix,
@@ -177,7 +178,7 @@ in {
 
     # example of adding a tap
     # taps = ["homebrew/cask-fonts" "dimentium/autoraise" "nikitabobko/tap" "homebrew/services"];
-    taps = [];
+    taps = ["teamookla/speedtest"];
 
     # `brew install`
     # Example of installing a package and starting a service
@@ -190,6 +191,7 @@ in {
     #   }
     # ];
     brews = [
+      "teamookla/speedtest/speedtest"
       "awscli"
       "displayplacer"
       "gh"
@@ -214,7 +216,6 @@ in {
       "firefox"
       "brave-browser"
       "signal"
-      "messenger"
       "moonlight"
       "obsidian"
       "discord"
@@ -237,7 +238,6 @@ in {
       "r"
       "rstudio"
       "steam"
-      "telegram"
       "utm"
       "visual-studio-code"
       "vlc"
@@ -274,6 +274,14 @@ in {
   # If you configure some of your MacOS preferences via nix-darwin and then activate your system,
   # you’ll find that some of them don’t take effect until you logout or restart your system.
   # This option fixes that
+  # Tap and trust third-party taps before brew bundle runs.
+  # brew trust requires the tap directory to already exist on disk, so we
+  # explicitly tap first, then trust, prepended ahead of the brew bundle call.
+  system.activationScripts.homebrew.text = lib.mkBefore ''
+    /opt/homebrew/bin/brew tap teamookla/speedtest 2>/dev/null || true
+    /opt/homebrew/bin/brew trust teamookla/speedtest 2>/dev/null || true
+  '';
+
   system.activationScripts.postActivation.text = ''
     # Following line should allow us to avoid a logout/login cycle
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
