@@ -39,6 +39,11 @@ in
     rekeyFile = ./secret1.age;
     owner = userdata.username;
   };
+
+  # Backups only (not deployed): release signing key for the Weight Δ Android app
+  # (github.com/PulfordJ/weight_change_tracker). Encrypted to the master identity; restore with
+  #   age -d -i /root/.ssh/id_ed25519 weightdeltatracker-release.jks.age > ~/.android/weightdeltatracker-release.jks
+  #   age -d -i /root/.ssh/id_ed25519 weightdeltatracker-key.properties.age > <app>/android/key.properties
 }
 
 #let
