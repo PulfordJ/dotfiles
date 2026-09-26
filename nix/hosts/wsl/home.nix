@@ -24,7 +24,8 @@
 in {
   # WSL runs standalone home-manager on top of an ordinary Ubuntu rootfs, so
   # there is no system module layer here: no NixOS/nix-darwin configuration, and
-  # no agenix. Everything below has to be self-contained at the user level.
+  # no system agenix (secrets use agenix's home-manager module instead, below).
+  # Everything below has to be self-contained at the user level.
   #
   # Deliberately omitted relative to the desktop hosts:
   #   - hyprland/waybar/mako/tofi/hyprlock, firefox, xremap, gammastep, stylix
@@ -38,7 +39,26 @@ in {
     "${project_root}/nix/home-manager/configs/zsh.nix"
     "${project_root}/nix/home-manager/configs/nvim.nix"
     "${project_root}/nix/home-manager/configs/tmux.nix"
+    inputs.agenix.homeManagerModules.default
   ];
+
+  # User-level agenix: decrypted by a systemd user service into
+  # $XDG_RUNTIME_DIR/agenix at login, then symlinked to each `path`. The
+  # secrets are encrypted to the master identity (secrets/secrets.nix), whose
+  # private half is present on this host as the mum-osmc key.
+  age.identityPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519_mum-osmc"];
+  age.secrets = {
+    # Release signing key for the Weight Δ Android app; key.properties points
+    # Gradle at the keystore and holds its passwords.
+    weightdeltatracker-keystore = {
+      file = "${project_root}/secrets/weightdeltatracker-release.jks.age";
+      path = "${config.home.homeDirectory}/.android/weightdeltatracker-release.jks";
+    };
+    weightdeltatracker-key-properties = {
+      file = "${project_root}/secrets/weightdeltatracker-key.properties.age";
+      path = "${config.home.homeDirectory}/projects/weight_change_tracker/android/key.properties";
+    };
+  };
 
   home.username = userdata.username;
   home.homeDirectory = "/home/${userdata.username}";
