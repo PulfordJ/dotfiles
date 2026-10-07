@@ -19,14 +19,14 @@ If neither exists, stop and tell the user Google Drive isn't mounted — never c
 
 ## Note format
 
-Plain Markdown, one item per line, **no checkboxes or bullets**. Blank lines separate loose groups, and a line ending in `:` (e.g. `If car dies:`) heads a group of the items under it. The file uses LF line endings and ends with a blank line. Preserve all of this — match the existing style rather than reformatting.
+Obsidian task list: one item per line as `- [ ] item` (`- [x] item` when ticked in Obsidian). The ungrouped items come first; named groups follow as `## Heading` sections (e.g. `## If car dies`) separated by a blank line. LF line endings, trailing newline. Match the existing style rather than reformatting.
 
 ## Operations
 
 Always read the current note first (Drive may have synced edits from another device), then make a minimal edit with the Edit tool.
 
-- **Add** — append the item as a new line after the last item of the first (top, ungrouped) block, unless the user names a group (`under "If car dies"`) or position (`at the top`). Keep the user's wording; don't add bullets, dates or checkboxes. Skip it and say so if an equivalent item is already there. Several items → one line each.
-- **Remove / done / tick off** — delete the matching line. Match loosely (case, typos, paraphrase: "remove gym" → `Gym?`). If more than one line could match, or nothing clearly matches, show the candidates and ask rather than guessing. If removing a group's last item leaves an orphaned header, ask whether to remove the header too.
+- **Add** — append `- [ ] <item>` after the last item of the top, ungrouped block, unless the user names a group (`under "If car dies"`, creating the `## ` section if new) or position (`at the top`). Keep the user's wording; don't add dates. Skip it and say so if an equivalent item is already there. Several items → one line each.
+- **Remove / done / tick off** — delete the matching line (also clear out any `- [x]` lines while you're there). Match loosely (case, typos, paraphrase: "remove gym" → `Gym?`). If more than one line could match, or nothing clearly matches, show the candidates and ask rather than guessing. If removing a group's last item leaves an empty `## ` section, ask whether to remove the heading too.
 - **List** (or no arguments) — print the note's contents.
 
 After any change, show the resulting list (or a short diff for long lists) so the user can confirm. There's no git here — Google Drive syncs it — so don't commit anything.
