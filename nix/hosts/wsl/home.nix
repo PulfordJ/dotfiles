@@ -91,6 +91,9 @@ in {
     # Claude Code reads its global instructions from $CLAUDE_CONFIG_DIR/CLAUDE.md,
     # defaulting to ~/.claude - not ~/.config/claude as the desktop hosts assume.
     ".claude/CLAUDE.md".source = "${project_root}/utilities/claude/CLAUDE.md";
+    # /todo - edit the TODO note in the Google Drive "Test" Obsidian vault.
+    ".claude/skills/todo".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/todo";
     # Kimi Code reads its global instructions from ~/.agents/AGENTS.md (the
     # generic cross-tool location; ~/.kimi-code/AGENTS.md is the Kimi-specific
     # one). Same source file as Claude Code so they stay in sync.

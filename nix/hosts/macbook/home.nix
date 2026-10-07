@@ -47,6 +47,8 @@ in {
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles-claude1/utilities/claude/settings.json";
     ".claude/skills/sync-beastpc".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/sync-beastpc";
+    ".claude/skills/todo".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/todo";
     ".gemini/GEMINI.md".source = "${project_root}/utilities/gemini/GEMINI.md";
     ".config/starship.toml".source = "${project_root}/utilities/starship/starship.toml";
     ".config/iterm".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/iterm";
