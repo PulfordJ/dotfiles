@@ -133,6 +133,7 @@ in {
     ++ [
       pkgs.lazygit # A simple terminal UI for git commands
       pkgs.git-lfs
+      pkgs.uv # Python package and project manager
     ];
 
   linux_packages = let
