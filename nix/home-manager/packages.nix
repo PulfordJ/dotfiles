@@ -128,12 +128,20 @@ in {
   # WSL has no display server and no system-level module layer, so it takes the
   # headless core plus a couple of terminal git helpers that live in
   # `linux_packages` for the desktop hosts.
-  wsl_packages =
+  wsl_packages = let
+    # Opt-in bubblewrap jail for coding agents; see the script header.
+    agent-sandbox = pkgs.writeShellApplication {
+      name = "agent-sandbox";
+      text = builtins.readFile "${project_root}/scripts/agent-sandbox.sh";
+      runtimeInputs = [pkgs.bubblewrap pkgs.coreutils pkgs.gnused pkgs.git];
+    };
+  in
     core_packages
     ++ [
       pkgs.lazygit # A simple terminal UI for git commands
       pkgs.git-lfs
       pkgs.uv # Python package and project manager
+      agent-sandbox
     ];
 
   linux_packages = let
