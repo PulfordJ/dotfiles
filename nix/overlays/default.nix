@@ -3,6 +3,7 @@ inputs: let
 in [
   (mkSubPkgsOverlay "master" inputs.master)
   (mkSubPkgsOverlay "nixpkgs-stable" inputs.nixpkgs-stable)
+  (mkSubPkgsOverlay "nixpkgs-agents" inputs.nixpkgs-agents)
   inputs.nur.overlays.default
   inputs.rust-overlay.overlays.default
   (import ./firefox-addons.nix)

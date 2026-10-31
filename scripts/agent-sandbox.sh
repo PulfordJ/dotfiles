@@ -1,16 +1,17 @@
 # Run a coding agent (OpenCode, or Ori - OpenRouter's agent launcher) inside a
-# bubblewrap sandbox. Opt-in: the plain `opencode` / `ori` commands are
+# sandbox: bubblewrap on Linux, Seatbelt (sandbox-exec) on macOS. Opt-in: the plain `opencode` / `ori` commands are
 # untouched; use `opencode-safe` / `ori-safe` (aliases) or call this directly.
 #
 # What the agent can see:
 #   - the current project directory, read-write (git toplevel if inside a repo)
 #   - its own config/state directories, read-write
-#   - /usr, /etc and /nix read-only, plus a read-only git config and nix profile
+#   - Linux: /usr, /etc and /nix read-only, plus a read-only git config and
+#     nix profile. macOS: everything outside $HOME may be read, but not written
 #   - the network (it needs it to reach the model API), unless --no-net
 # What it cannot see:
 #   - the rest of $HOME: ~/.ssh, ~/.aws, ~/.claude, gh tokens, other projects
-#   - /mnt (the Windows drives) and the WSL interop socket, so it cannot launch
-#     Windows executables to step outside the sandbox
+#   - WSL: /mnt (the Windows drives) and the interop socket, so it cannot
+#     launch Windows executables to step outside the sandbox
 #   - any environment variable not on the allow-list below
 #
 # Usage:
@@ -32,18 +33,20 @@ die() {
   exit 1
 }
 
-extra=()
+# rw/ro hold absolute paths; each backend turns them into its own rules.
+rw=()
+ro=()
 envs=(OPENROUTER_API_KEY ORI_TELEMETRY ORI_TELEMETRY_LEVEL)
-net=(--share-net)
+net=1
 project=""
 shell=0
 
 while (($#)); do
   case "$1" in
-    --rw) extra+=(--bind "$(realpath "$2")" "$(realpath "$2")"); shift 2 ;;
-    --ro) extra+=(--ro-bind "$(realpath "$2")" "$(realpath "$2")"); shift 2 ;;
+    --rw) rw+=("$(realpath "$2")"); shift 2 ;;
+    --ro) ro+=("$(realpath "$2")"); shift 2 ;;
     --env) envs+=("$2"); shift 2 ;;
-    --no-net) net=(); shift ;;
+    --no-net) net=0; shift ;;
     --dir) project="$(realpath "$2")"; shift 2 ;;
     --shell) shell=1; shift ;;
     --) shift; break ;;
@@ -57,9 +60,11 @@ tool="$1"
 shift
 state=()
 ro_state=()
+# Resolved through PATH, which puts ~/.opencode/bin (the self-updating
+# installer's location) ahead of a Nix-installed opencode.
 case "$tool" in
   opencode)
-    cmd=("$HOME/.opencode/bin/opencode")
+    cmd=(opencode)
     state=(.opencode .config/opencode .local/share/opencode .local/state/opencode .cache/opencode)
     envs+=(KIMI_API_KEY)
     ;;
@@ -72,6 +77,7 @@ case "$tool" in
   *) cmd=("$tool") ;;
 esac
 cmd+=("$@")
+((shell)) && cmd=(/bin/bash)
 
 if [[ -z "$project" ]]; then
   project="$(git rev-parse --show-toplevel 2>/dev/null || pwd -P)"
@@ -81,49 +87,95 @@ case "$HOME/" in
   "${project%/}"/*) die "refusing to expose $project - cd into a project directory or pass --dir" ;;
 esac
 
-args=(
-  --unshare-all "${net[@]}"
-  --die-with-parent
-  --clearenv
-  --ro-bind /usr /usr
-  --symlink usr/bin /bin
-  --symlink usr/sbin /sbin
-  --symlink usr/lib /lib
-  --symlink usr/lib64 /lib64
-  --ro-bind /etc /etc
-  --ro-bind /nix /nix
-  --proc /proc
-  --dev /dev
-  --tmpfs /tmp
-  --tmpfs /run
-  --dir "$HOME"
-)
-# On WSL /etc/resolv.conf is a symlink into /mnt/wsl; expose just that file.
-[[ -e /mnt/wsl/resolv.conf ]] && args+=(--ro-bind /mnt/wsl/resolv.conf /mnt/wsl/resolv.conf)
-
 # Read-only bits of home the agent's shell commands need: the nix profile
 # (git, rg, ...), git identity, and the shared AGENTS.md instructions.
 for p in .nix-profile .local/state/nix .config/git .gitconfig .agents "${ro_state[@]}"; do
-  [[ -e "$HOME/$p" || -L "$HOME/$p" ]] && args+=(--ro-bind "$HOME/$p" "$HOME/$p")
+  [[ -e "$HOME/$p" || -L "$HOME/$p" ]] && ro+=("$HOME/$p")
 done
 for p in "${state[@]}"; do
   mkdir -p "$HOME/$p"
-  args+=(--bind "$HOME/$p" "$HOME/$p")
+  rw+=("$HOME/$p")
 done
-args+=(--bind "$project" "$project" --chdir "$project")
-args+=("${extra[@]}")
+rw+=("$project")
 
-args+=(
-  --setenv HOME "$HOME"
-  --setenv USER "$USER"
-  --setenv SHELL /bin/bash
-  --setenv PATH "$HOME/.opencode/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin"
-  --setenv TERM "${TERM:-xterm-256color}"
-  --setenv AGENT_SANDBOX 1
+envs+=(COLORTERM LANG LOCALE_ARCHIVE EDITOR)
+setenv=(
+  HOME="$HOME"
+  USER="$USER"
+  SHELL=/bin/bash
+  TERM="${TERM:-xterm-256color}"
+  AGENT_SANDBOX=1
 )
-for v in COLORTERM LANG LOCALE_ARCHIVE EDITOR "${envs[@]}"; do
-  [[ -n "${!v:-}" ]] && args+=(--setenv "$v" "${!v}")
+for v in "${envs[@]}"; do
+  [[ -n "${!v:-}" ]] && setenv+=("$v=${!v}")
 done
 
-((shell)) && cmd=(/bin/bash)
-exec bwrap "${args[@]}" -- "${cmd[@]}"
+run_bwrap() {
+  local args=(
+    --unshare-all
+    --die-with-parent
+    --clearenv
+    --ro-bind /usr /usr
+    --symlink usr/bin /bin
+    --symlink usr/sbin /sbin
+    --symlink usr/lib /lib
+    --symlink usr/lib64 /lib64
+    --ro-bind /etc /etc
+    --ro-bind /nix /nix
+    --proc /proc
+    --dev /dev
+    --tmpfs /tmp
+    --tmpfs /run
+    --dir "$HOME"
+  )
+  ((net)) && args+=(--share-net)
+  # On WSL /etc/resolv.conf is a symlink into /mnt/wsl; expose just that file.
+  [[ -e /mnt/wsl/resolv.conf ]] && args+=(--ro-bind /mnt/wsl/resolv.conf /mnt/wsl/resolv.conf)
+  local p kv
+  for p in "${ro[@]}"; do args+=(--ro-bind "$p" "$p"); done
+  for p in "${rw[@]}"; do args+=(--bind "$p" "$p"); done
+  args+=(--chdir "$project")
+  setenv+=(PATH="$HOME/.opencode/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin")
+  for kv in "${setenv[@]}"; do args+=(--setenv "${kv%%=*}" "${kv#*=}"); done
+  exec bwrap "${args[@]}" -- "${cmd[@]}"
+}
+
+# Seatbelt cannot hide paths, only deny access to them, so the policy denies
+# reading file contents anywhere under $HOME and writing anywhere at all, then
+# re-allows the paths above. Metadata stays readable so path lookups work.
+# Paths go in as -D parameters rather than being spliced into the policy, so
+# they need no quoting.
+run_seatbelt() {
+  local policy defs=() i=0 p
+  policy='(version 1)
+(allow default)
+(deny file-read-data (subpath (param "HOME")))
+(deny file-write*)
+(allow file-write* (subpath "/private/tmp") (subpath "/private/var/folders")
+  (literal "/dev/null") (literal "/dev/ptmx") (literal "/dev/dtracehelper") (regex #"^/dev/tty") (regex #"^/dev/fd/"))'
+  defs+=(-D "HOME=$HOME")
+  ((net)) || policy+=$'\n(deny network-outbound (remote ip "*:*"))'
+  for p in "${ro[@]}"; do
+    # Allow a symlink's target too, e.g. ~/.gitconfig -> /nix/store.
+    defs+=(-D "RO$i=$p" -D "ROT$i=$(realpath "$p")")
+    policy+=$'\n'"(allow file-read-data (subpath (param \"RO$i\")) (subpath (param \"ROT$i\")))"
+    i=$((i + 1))
+  done
+  i=0
+  for p in "${rw[@]}"; do
+    defs+=(-D "RW$i=$p")
+    policy+=$'\n'"(allow file-read-data file-write* (subpath (param \"RW$i\")))"
+    i=$((i + 1))
+  done
+  # The system PATH (Homebrew, nix-darwin's profiles) lives outside $HOME and
+  # stays readable, so it is kept; only the tool directories are prepended.
+  setenv+=(PATH="$HOME/.opencode/bin:$PATH" TMPDIR="${TMPDIR:-/tmp}")
+  cd "$project"
+  exec env -i "${setenv[@]}" /usr/bin/sandbox-exec -p "$policy" "${defs[@]}" "${cmd[@]}"
+}
+
+case "$(uname -s)" in
+  Linux) run_bwrap ;;
+  Darwin) run_seatbelt ;;
+  *) die "unsupported OS: $(uname -s)" ;;
+esac

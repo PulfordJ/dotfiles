@@ -34,6 +34,13 @@ in {
   home.packages = package_config.default_packages ++ package_config.mac_packages;
   home.stateVersion = "23.11";
 
+  # Sandboxed variants of the coding agents (scripts/agent-sandbox.sh). The
+  # unsandboxed commands stay the default.
+  home.shellAliases = {
+    opencode-safe = "agent-sandbox opencode";
+    ori-safe = "agent-sandbox ori";
+  };
+
   home.sessionVariables = {
     EDITOR = "nvim";
     TERMINAL = "iterm2";

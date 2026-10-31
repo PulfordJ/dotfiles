@@ -1302,6 +1302,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-agents": {
+      "locked": {
+        "lastModified": 1793345420,
+        "narHash": "sha256-e/yiZ31gXRROBDcnOtT3YwDQ73NVG9Cepccbt86LIn8=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "885ba4d038f10c3d17d7a92e8c3cc185b99c9158",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1751159883,
@@ -1857,6 +1873,7 @@
         "nix-monitored": "nix-monitored",
         "nix-speedtest-module": "nix-speedtest-module",
         "nixos-raspberrypi": "nixos-raspberrypi",
+        "nixpkgs-agents": "nixpkgs-agents",
         "nixpkgs-stable": "nixpkgs-stable",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nur": "nur",

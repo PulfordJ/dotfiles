@@ -4,6 +4,16 @@
   inputs,
   ...
 }: let
+  # Opt-in sandbox for coding agents (bubblewrap on Linux, sandbox-exec on
+  # macOS); see the script header.
+  agent-sandbox = pkgs.writeShellApplication {
+    name = "agent-sandbox";
+    text = builtins.readFile "${project_root}/scripts/agent-sandbox.sh";
+    runtimeInputs =
+      [pkgs.coreutils pkgs.gnused pkgs.git]
+      ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.bubblewrap;
+  };
+
   # Android SDK with proper license acceptance
   androidSdk = pkgs.androidenv.composeAndroidPackages {
     cmdLineToolsVersion = "19.0";
@@ -128,14 +138,7 @@ in {
   # WSL has no display server and no system-level module layer, so it takes the
   # headless core plus a couple of terminal git helpers that live in
   # `linux_packages` for the desktop hosts.
-  wsl_packages = let
-    # Opt-in bubblewrap jail for coding agents; see the script header.
-    agent-sandbox = pkgs.writeShellApplication {
-      name = "agent-sandbox";
-      text = builtins.readFile "${project_root}/scripts/agent-sandbox.sh";
-      runtimeInputs = [pkgs.bubblewrap pkgs.coreutils pkgs.gnused pkgs.git];
-    };
-  in
+  wsl_packages =
     core_packages
     ++ [
       pkgs.lazygit # A simple terminal UI for git commands
@@ -238,6 +241,8 @@ in {
 
   mac_packages = [
     pkgs.teleport # Teleport tsh client for secure access to SSH servers and clusters
+    pkgs.nixpkgs-agents.opencode # AI coding agent; run sandboxed as `opencode-safe`
+    agent-sandbox
   ];
 
   # Export Android SDK for use in other modules

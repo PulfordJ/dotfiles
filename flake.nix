@@ -5,6 +5,9 @@
     master.url = "github:nixos/nixpkgs?ref=master";
     nixpkgs-unstable = {url = "github:nixos/nixpkgs/nixos-unstable";};
     nixpkgs-stable = {url = "github:nixos/nixpkgs/nixos-25.05";};
+    # Coding agents move faster than the main pins; bumping this alone
+    # (`nix flake update nixpkgs-agents`) touches nothing else.
+    nixpkgs-agents = {url = "github:nixos/nixpkgs/nixpkgs-unstable";};
 
     nix-darwin = {url = "github:LnL7/nix-darwin";};
     home-manager = {url = "github:nix-community/home-manager";};
