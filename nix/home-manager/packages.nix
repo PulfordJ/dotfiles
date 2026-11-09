@@ -146,6 +146,7 @@ in {
       pkgs.git-lfs
       pkgs.uv # Python package and project manager
       agent-sandbox
+      pkgs.bubblewrap # on PATH so codex can sandbox itself (agent-sandbox bundles its own)
     ];
 
   linux_packages = let
