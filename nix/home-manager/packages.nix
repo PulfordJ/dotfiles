@@ -111,7 +111,7 @@
     pkgs.nix-output-monitor
     pkgs.neovim
     pkgs.gemini-cli
-    pkgs.codex # OpenAI Codex CLI coding agent
+    pkgs.nixpkgs-agents.codex # OpenAI Codex CLI; tracks nixpkgs-agents (`nix flake update nixpkgs-agents`)
     pkgs.atuin # Magical shell history with sync and search
     pkgs.direnv # Automatic environment loading for project directories
 
