@@ -101,6 +101,9 @@ in {
     # /todo - edit the TODO note in the Google Drive "Test" Obsidian vault.
     ".claude/skills/todo".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/todo";
+    # /anki-cards - add flashcards (Spanish ones via the pronunciation trainer repo).
+    ".claude/skills/anki-cards".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/utilities/claude/skills/anki-cards";
     # Kimi Code reads its global instructions from ~/.agents/AGENTS.md (the
     # generic cross-tool location; ~/.kimi-code/AGENTS.md is the Kimi-specific
     # one). Same source file as Claude Code so they stay in sync.
